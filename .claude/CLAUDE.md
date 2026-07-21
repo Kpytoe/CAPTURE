@@ -61,7 +61,13 @@ no hacer nada, mira el área de notificaciones.
 
 ## Deuda conocida
 
-_(vacío)_
+- **La ruta multi-monitor no está verificada.** El equipo de desarrollo tiene un solo monitor
+  (`\\.\DISPLAY1`, 2560×1440). Todo el diseño de captura asume escalas mixtas y trabaja en
+  píxeles físicos (ADR-004), pero nadie lo ha ejercitado con dos pantallas. Antes de dar por
+  bueno RNF-07 hay que probar: seleccionar cruzando el borde entre un monitor al 150 % y otro
+  al 100 %, y comprobar que el recorte no sale desplazado.
+- **`Capture\CapturePreview.cs` es un andamio temporal** del Paso 4: vuelca la captura a disco
+  para poder verificar el recorte. Se borra cuando `SaveService` haga el guardado de verdad.
 
 ## Notas vivas
 

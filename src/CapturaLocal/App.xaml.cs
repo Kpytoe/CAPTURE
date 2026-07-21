@@ -45,11 +45,15 @@ public partial class App : Application
         CreateTrayIcon();
         RegisterConfiguredHotkey();
 
-        // Permite abrir Configuracion desde un acceso directo, y hace la ventana verificable
-        // sin depender de que alguien abra el menu de bandeja con el raton.
+        // Permiten arrancar una accion desde un acceso directo propio del usuario, y de paso
+        // hacen la aplicacion verificable sin depender del menu de bandeja.
         if (e.Args.Contains("--configuracion", StringComparer.OrdinalIgnoreCase))
         {
             OnOpenSettings();
+        }
+        else if (e.Args.Contains("--capturar", StringComparer.OrdinalIgnoreCase))
+        {
+            OnNewCapture();
         }
     }
 
@@ -107,12 +111,27 @@ public partial class App : Application
         return new System.Drawing.Icon(stream);
     }
 
-    private void OnNewCapture()
+    private async void OnNewCapture()
     {
         FileLogger.Info("Captura solicitada.");
 
-        // Se conecta en el Paso 4 (captura de region).
-        Notify("La captura de region llega en el siguiente paso del borrador 1.");
+        try
+        {
+            var image = await Capture.CaptureService.CaptureRegionAsync();
+            if (image is null) return;
+
+            // El editor llega en el Paso 5. Mientras tanto la captura se guarda tal cual para
+            // poder comprobar que el recorte es exacto.
+            Capture.CapturePreview.SaveForVerification(image, _settings.SaveFolder);
+            Notify($"Captura de {image.PixelWidth} × {image.PixelHeight} px guardada. " +
+                   "El editor llega en el siguiente paso.");
+        }
+        catch (Exception ex)
+        {
+            FileLogger.Error("No se pudo completar la captura.", ex);
+            MessageBox.Show($"No se pudo completar la captura.\n\n{ex.Message}",
+                "Captura Local", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 
     private void OnOpenSettings()

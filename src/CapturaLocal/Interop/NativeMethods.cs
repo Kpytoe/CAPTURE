@@ -40,4 +40,45 @@ internal static class NativeMethods
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool UnregisterHotKey(IntPtr hWnd, int id);
+
+    // --- Captura y overlay ---
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct POINT
+    {
+        public int X;
+        public int Y;
+    }
+
+    /// <summary>
+    /// Posicion del cursor en pixeles fisicos del escritorio virtual. Es la unica medida que
+    /// vale igual en todos los monitores: las coordenadas de WPF dependen del DPI de la ventana
+    /// que las reporta, asi que con escalas mixtas no se pueden comparar entre monitores.
+    /// </summary>
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetCursorPos(out POINT point);
+
+    public static readonly IntPtr HWND_TOPMOST = new(-1);
+
+    public const uint SWP_NOACTIVATE = 0x0010;
+    public const uint SWP_SHOWWINDOW = 0x0040;
+
+    /// <summary>
+    /// Coloca una ventana en pixeles fisicos exactos. Necesario porque Left/Top/Width/Height de
+    /// WPF estan en unidades independientes del dispositivo, y al abarcar monitores con escalas
+    /// distintas no hay un unico factor que convierta bien.
+    /// </summary>
+    [DllImport("user32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter,
+        int x, int y, int cx, int cy, uint flags);
+
+    /// <summary>
+    /// Libera el HBITMAP que devuelve Bitmap.GetHbitmap(). Sin esto se fuga un objeto GDI por
+    /// cada captura, y el limite por proceso son 10.000.
+    /// </summary>
+    [DllImport("gdi32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool DeleteObject(IntPtr hObject);
 }

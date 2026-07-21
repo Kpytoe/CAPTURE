@@ -11,8 +11,8 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 |---|---|---|---|---|
 | RF-02 | Asignar combinación de teclas desde Configuración | ✅ | `Settings\SettingsWindow.xaml.cs` (grabador), `Settings\HotkeyDefinition.cs`, `Interop\HotKeyManager.cs` | Con la app corriendo, `RegisterHotKey` de `Ctrl+Shift+2` desde otro proceso devuelve 1409; sin ella, se registra sin problema |
 | RF-03 | Validar combinaciones reservadas o en uso, explicando el motivo | ✅ | `Interop\HotKeyManager.cs` (`Validate` + `DescribeFailure`) | Arrancar con `Win+Shift+S` en settings.json: se registra el motivo exacto, la app sigue viva y las preferencias no se tocan |
-| RF-04 | Elegir modo predeterminado (región / ventana / pantalla) | ⬜ | | Borrador 1: solo región |
-| RF-05 | Arrastrar, ajustar o cancelar la selección | ⬜ | | |
+| RF-04 | Elegir modo predeterminado (región / ventana / pantalla) | 🚧 | `Capture\CaptureService.cs` | Solo modo región en el borrador 1; ventana y pantalla completa van al borrador 2 |
+| RF-05 | Arrastrar, ajustar o cancelar la selección | ✅ | `Capture\OverlayWindow.xaml.cs`, `Capture\SelectionSession.cs` | `scratchpad\probar-captura.ps1`: arrastra una región conocida y compara el PNG con una referencia de la pantalla → 100 % de píxeles idénticos. Esc y clic derecho cancelan |
 | RF-06 | Abrir el editor de inmediato, a escala y con zoom | ⬜ | | |
 | RF-07 | Herramientas: selección, lápiz, línea, rectángulo, elipse, texto | ⬜ | | Borrador 1: sin línea ni elipse; con pixelado |
 | RF-08 | Color y grosor por herramienta; texto con color y tamaño | ⬜ | | |
@@ -28,13 +28,13 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 
 | ID | Requisito | Estado | Implementado en | Verificación |
 |---|---|---|---|---|
-| RNF-01 | Overlay en ≤ 500 ms | ⬜ | | |
+| RNF-01 | Overlay en ≤ 500 ms | ✅ | `Interop\ScreenCapture.cs`, `Capture\CaptureService.cs` | El propio log lo mide: **323 ms** en un monitor 2560×1440, incluyendo el arranque en frío del proceso |
 | RNF-02 | Captura visible en el editor en ≤ 1,5 s a 4K | ⬜ | | |
 | RNF-03 | Sin transmisión de capturas ni telemetría | ⬜ | | `git grep -nE 'HttpClient\|WebClient\|WebRequest\|Socket\|telemetr' -- src` vacío |
 | RNF-04 | Fallo al guardar conserva la edición y avisa | ⬜ | | |
 | RNF-05 | Guardar/Copiar/Deshacer/Cancelar visibles o con atajo | ⬜ | | |
 | RNF-06 | Navegable por teclado, con etiquetas accesibles | ⬜ | | |
-| RNF-07 | Múltiples monitores y escala DPI | ⬜ | | |
+| RNF-07 | Múltiples monitores y escala DPI | 🚧 | `app.manifest` (PerMonitorV2), `Interop\MonitorInfo.cs`, `Capture\OverlayWindow.xaml.cs` | Implementado (un overlay por monitor, coordenadas en píxeles físicos, `SetWindowPos` exacto, `GetCursorPos` en vez de coordenadas WPF). **Sin verificar:** el equipo de desarrollo tiene un solo monitor, así que la ruta de escalas mixtas no se ha ejercitado. Ver «Deuda conocida» en `.claude\CLAUDE.md` |
 | RNF-08 | Preferencias locales, versionadas y recuperables | ✅ | `Settings\SettingsStore.cs`, `Settings\AppSettings.cs` | `%LOCALAPPDATA%\CapturaLocal\settings.json` con `SchemaVersion`; escritura atómica (temp + `File.Replace`); un JSON dañado se aparta como `settings.corrupto-*.json` y se arranca con valores de fábrica |
 
 ## Criterios de aceptación (SRS §11)
