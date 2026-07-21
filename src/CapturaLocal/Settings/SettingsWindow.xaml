@@ -1,0 +1,91 @@
+<Window x:Class="CapturaLocal.Settings.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Configuración — Captura Local"
+        Width="560" SizeToContent="Height"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        ShowInTaskbar="True">
+
+    <Window.Resources>
+        <Style TargetType="TextBlock" x:Key="Etiqueta">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style TargetType="TextBlock" x:Key="Ayuda">
+            <Setter Property="Foreground" Value="#666" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,4,0,0" />
+        </Style>
+    </Window.Resources>
+
+    <StackPanel Margin="20">
+
+        <!-- Atajo -->
+        <TextBlock Style="{StaticResource Etiqueta}" Text="Atajo para capturar" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="HotkeyBox"
+                     Grid.Column="0"
+                     IsReadOnly="True"
+                     Padding="6,4"
+                     VerticalContentAlignment="Center"
+                     GotKeyboardFocus="HotkeyBox_GotKeyboardFocus"
+                     LostKeyboardFocus="HotkeyBox_LostKeyboardFocus"
+                     PreviewKeyDown="HotkeyBox_PreviewKeyDown"
+                     AutomationProperties.Name="Combinación de teclas para capturar"
+                     AutomationProperties.HelpText="Pon el foco aquí y pulsa la combinación deseada." />
+            <Button x:Name="ResetHotkeyButton"
+                    Grid.Column="1" Margin="8,0,0,0" Padding="12,4"
+                    Content="Predeterminado"
+                    Click="ResetHotkey_Click"
+                    AutomationProperties.Name="Restaurar el atajo predeterminado" />
+        </Grid>
+        <TextBlock x:Name="HotkeyHelp" Style="{StaticResource Ayuda}"
+                   Text="Pon el foco en el cuadro y pulsa la combinación que quieras." />
+        <TextBlock x:Name="HotkeyWarning" Style="{StaticResource Ayuda}"
+                   Foreground="#B45309" Visibility="Collapsed" />
+
+        <Separator Margin="0,18" />
+
+        <!-- Carpeta -->
+        <TextBlock Style="{StaticResource Etiqueta}" Text="Carpeta de guardado" />
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="FolderBox" Grid.Column="0" Padding="6,4"
+                     VerticalContentAlignment="Center"
+                     TextChanged="FolderBox_TextChanged"
+                     AutomationProperties.Name="Ruta de la carpeta de guardado" />
+            <Button Grid.Column="1" Margin="8,0,0,0" Padding="12,4"
+                    Content="Examinar…"
+                    Click="Browse_Click"
+                    AutomationProperties.Name="Elegir carpeta de guardado" />
+        </Grid>
+        <TextBlock x:Name="FolderWarning" Style="{StaticResource Ayuda}"
+                   Foreground="#B45309" Visibility="Collapsed" TextWrapping="Wrap" />
+
+        <Separator Margin="0,18" />
+
+        <!-- Registro -->
+        <CheckBox x:Name="LoggingCheck"
+                  Content="Guardar un registro técnico local (sin imágenes)"
+                  AutomationProperties.Name="Activar el registro técnico local" />
+        <TextBlock Style="{StaticResource Ayuda}"
+                   Text="El registro solo anota eventos y errores. Nunca contiene capturas." />
+
+        <!-- Botones -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+            <Button Content="Cancelar" Padding="16,5" MinWidth="90"
+                    IsCancel="True" Click="Cancel_Click" />
+            <Button Content="Guardar" Padding="16,5" MinWidth="90" Margin="8,0,0,0"
+                    IsDefault="True" Click="Save_Click" />
+        </StackPanel>
+
+    </StackPanel>
+</Window>

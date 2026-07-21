@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using CapturaLocal.Interop;
 using CapturaLocal.Services;
 using CapturaLocal.Settings;
 
@@ -15,6 +16,8 @@ public partial class App : Application
 
     private Mutex? _singleInstance;
     private Forms::NotifyIcon? _tray;
+    private HotKeyManager? _hotKeys;
+    private SettingsWindow? _settingsWindow;
     private SettingsStore _store = null!;
     private AppSettings _settings = null!;
 
@@ -28,7 +31,7 @@ public partial class App : Application
         if (!isFirst)
         {
             MessageBox.Show(
-                "Captura Local ya se esta ejecutando. Busca su icono en la bandeja del sistema.",
+                "Captura Local ya se está ejecutando. Busca su icono en la bandeja del sistema.",
                 "Captura Local", MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
@@ -40,13 +43,49 @@ public partial class App : Application
         FileLogger.Info("Aplicacion iniciada.");
 
         CreateTrayIcon();
+        RegisterConfiguredHotkey();
+
+        // Permite abrir Configuracion desde un acceso directo, y hace la ventana verificable
+        // sin depender de que alguien abra el menu de bandeja con el raton.
+        if (e.Args.Contains("--configuracion", StringComparer.OrdinalIgnoreCase))
+        {
+            OnOpenSettings();
+        }
+    }
+
+    /// <summary>
+    /// Registra el atajo guardado. Si Windows lo rechaza (otra aplicacion se le adelanto desde
+    /// la ultima sesion), no se cambia el archivo de preferencias: se avisa y se deja al usuario
+    /// entrar en Configuracion a elegir otro (SRS 12).
+    /// </summary>
+    private void RegisterConfiguredHotkey()
+    {
+        _hotKeys = new HotKeyManager();
+        _hotKeys.Pressed += OnNewCapture;
+
+        var hotkey = HotkeyDefinition.TryParse(_settings.Hotkey, out var parsed) && parsed is not null
+            ? parsed
+            : HotkeyDefinition.Default;
+
+        if (_hotKeys.TryRegister(hotkey, out var error))
+        {
+            if (_tray is not null)
+            {
+                _tray.Text = $"Captura Local - {hotkey.ToDisplayString()}";
+            }
+            return;
+        }
+
+        FileLogger.Warn($"Arranque sin atajo activo: {error}");
+        Notify($"No se pudo activar {hotkey.ToDisplayString()}. {error} " +
+               "Abre Configuración para elegir otra combinación.");
     }
 
     private void CreateTrayIcon()
     {
         var menu = new Forms::ContextMenuStrip();
         menu.Items.Add("Nueva captura", null, (_, _) => OnNewCapture());
-        menu.Items.Add("Configuracion...", null, (_, _) => OnOpenSettings());
+        menu.Items.Add("Configuración…", null, (_, _) => OnOpenSettings());
         menu.Items.Add("Abrir carpeta de guardado", null, (_, _) => OnOpenSaveFolder());
         menu.Items.Add(new Forms::ToolStripSeparator());
         menu.Items.Add("Salir", null, (_, _) => OnExit());
@@ -70,14 +109,31 @@ public partial class App : Application
 
     private void OnNewCapture()
     {
+        FileLogger.Info("Captura solicitada.");
+
         // Se conecta en el Paso 4 (captura de region).
         Notify("La captura de region llega en el siguiente paso del borrador 1.");
     }
 
     private void OnOpenSettings()
     {
-        // Se conecta en el Paso 3 (atajo configurable).
-        Notify("La ventana de Configuracion llega en el siguiente paso del borrador 1.");
+        // Una sola ventana de Configuracion: si ya esta abierta, se trae al frente.
+        if (_settingsWindow is not null)
+        {
+            _settingsWindow.Activate();
+            return;
+        }
+
+        _settingsWindow = new SettingsWindow(_settings, _store, _hotKeys!);
+        _settingsWindow.Closed += (_, _) =>
+        {
+            _settingsWindow = null;
+            if (_tray is not null && _hotKeys?.Current is not null)
+            {
+                _tray.Text = $"Captura Local - {_hotKeys.Current.ToDisplayString()}";
+            }
+        };
+        _settingsWindow.Show();
     }
 
     private void OnOpenSaveFolder()
@@ -117,6 +173,7 @@ public partial class App : Application
             _tray.Dispose();
         }
 
+        _hotKeys?.Dispose();
         _singleInstance?.Dispose();
         base.OnExit(e);
     }

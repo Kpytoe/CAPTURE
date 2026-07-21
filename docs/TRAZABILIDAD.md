@@ -9,8 +9,8 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 
 | ID | Requisito | Estado | Implementado en | Verificación |
 |---|---|---|---|---|
-| RF-02 | Asignar combinación de teclas desde Configuración | ⬜ | | |
-| RF-03 | Validar combinaciones reservadas o en uso, explicando el motivo | ⬜ | | |
+| RF-02 | Asignar combinación de teclas desde Configuración | ✅ | `Settings\SettingsWindow.xaml.cs` (grabador), `Settings\HotkeyDefinition.cs`, `Interop\HotKeyManager.cs` | Con la app corriendo, `RegisterHotKey` de `Ctrl+Shift+2` desde otro proceso devuelve 1409; sin ella, se registra sin problema |
+| RF-03 | Validar combinaciones reservadas o en uso, explicando el motivo | ✅ | `Interop\HotKeyManager.cs` (`Validate` + `DescribeFailure`) | Arrancar con `Win+Shift+S` en settings.json: se registra el motivo exacto, la app sigue viva y las preferencias no se tocan |
 | RF-04 | Elegir modo predeterminado (región / ventana / pantalla) | ⬜ | | Borrador 1: solo región |
 | RF-05 | Arrastrar, ajustar o cancelar la selección | ⬜ | | |
 | RF-06 | Abrir el editor de inmediato, a escala y con zoom | ⬜ | | |
@@ -21,7 +21,7 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 | RF-11 | Copiar la imagen al portapapeles | ⬜ | | |
 | RF-12 | Guardar en carpeta local y «Guardar como» | ⬜ | | Borrador 1: solo Guardar, PNG |
 | RF-13 | Configurar carpeta, formato, calidad JPG y patrón de nombre | ⬜ | | Borrador 1: carpeta y formato |
-| RF-14 | Configuración desde la bandeja, preferencias persistentes | 🚧 | `App.xaml.cs` (menú de bandeja), `Settings\SettingsStore.cs` | Menú con las 4 entradas del SRS §9; las preferencias sobreviven al reinicio. Falta la ventana de Configuración (Paso 3) |
+| RF-14 | Configuración desde la bandeja, preferencias persistentes | ✅ | `App.xaml.cs` (menú de bandeja), `Settings\SettingsWindow.xaml` | Menú con las 4 entradas del SRS §9; `CapturaLocal.exe --configuracion` abre la ventana; las preferencias sobreviven al reinicio |
 | RF-15 | Cancelar captura o descartar edición, con confirmación | ⬜ | | |
 
 ## Requisitos no funcionales
@@ -41,8 +41,8 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 
 | Escenario | Estado | Cómo se ejercita |
 |---|---|---|
-| Atajo personalizado | ⬜ | |
-| Atajo inválido | ⬜ | |
+| Atajo personalizado | ✅ | `scratchpad\probar-atajo.ps1`: intenta registrar la combinación desde otro proceso y distingue LIBRE de OCUPADO (1409) |
+| Atajo inválido | ✅ | Poner `"Hotkey": "Win+Shift+S"` en `settings.json` y arrancar: el log da el motivo y se conserva la configuración previa |
 | Captura y anotación | ⬜ | |
 | Deshacer / rehacer | ⬜ | |
 | Guardado local | ⬜ | |
