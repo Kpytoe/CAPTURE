@@ -7,6 +7,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B3676EE4-275
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapturaLocal", "src\CapturaLocal\CapturaLocal.csproj", "{297F9FDA-9BD2-4873-9B8B-E54155276C3C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A36CD8A9-E2EF-4656-96AC-A79C62AC4876}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CapturaLocal.Tests", "tests\CapturaLocal.Tests\CapturaLocal.Tests.csproj", "{D94CD9C2-4E66-4365-9501-0C79D1A92ED9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,8 +24,13 @@ Global
 		{297F9FDA-9BD2-4873-9B8B-E54155276C3C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{297F9FDA-9BD2-4873-9B8B-E54155276C3C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{297F9FDA-9BD2-4873-9B8B-E54155276C3C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D94CD9C2-4E66-4365-9501-0C79D1A92ED9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D94CD9C2-4E66-4365-9501-0C79D1A92ED9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D94CD9C2-4E66-4365-9501-0C79D1A92ED9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D94CD9C2-4E66-4365-9501-0C79D1A92ED9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{297F9FDA-9BD2-4873-9B8B-E54155276C3C} = {B3676EE4-2758-42CE-AC9D-3ACC990462AE}
+		{D94CD9C2-4E66-4365-9501-0C79D1A92ED9} = {A36CD8A9-E2EF-4656-96AC-A79C62AC4876}
 	EndGlobalSection
 EndGlobal

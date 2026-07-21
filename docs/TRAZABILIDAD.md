@@ -3,47 +3,53 @@
 Cada requisito del SRS con el archivo que lo implementa y cómo se comprueba.
 Un requisito sin fila aquí **no está hecho**, por muy escrito que esté el código.
 
-Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
+Estado: ✅ hecho y verificado · 🚧 parcial en el borrador 1 · ⬜ borrador 2
 
 ## Requisitos funcionales
 
 | ID | Requisito | Estado | Implementado en | Verificación |
 |---|---|---|---|---|
-| RF-02 | Asignar combinación de teclas desde Configuración | ✅ | `Settings\SettingsWindow.xaml.cs` (grabador), `Settings\HotkeyDefinition.cs`, `Interop\HotKeyManager.cs` | Con la app corriendo, `RegisterHotKey` de `Ctrl+Shift+2` desde otro proceso devuelve 1409; sin ella, se registra sin problema |
-| RF-03 | Validar combinaciones reservadas o en uso, explicando el motivo | ✅ | `Interop\HotKeyManager.cs` (`Validate` + `DescribeFailure`) | Arrancar con `Win+Shift+S` en settings.json: se registra el motivo exacto, la app sigue viva y las preferencias no se tocan |
-| RF-04 | Elegir modo predeterminado (región / ventana / pantalla) | 🚧 | `Capture\CaptureService.cs` | Solo modo región en el borrador 1; ventana y pantalla completa van al borrador 2 |
-| RF-05 | Arrastrar, ajustar o cancelar la selección | ✅ | `Capture\OverlayWindow.xaml.cs`, `Capture\SelectionSession.cs` | `scratchpad\probar-captura.ps1`: arrastra una región conocida y compara el PNG con una referencia de la pantalla → 100 % de píxeles idénticos. Esc y clic derecho cancelan |
-| RF-06 | Abrir el editor de inmediato, a escala y con zoom | ⬜ | | |
-| RF-07 | Herramientas: selección, lápiz, línea, rectángulo, elipse, texto | ⬜ | | Borrador 1: sin línea ni elipse; con pixelado |
-| RF-08 | Color y grosor por herramienta; texto con color y tamaño | ⬜ | | |
-| RF-09 | Seleccionar una anotación para moverla o eliminarla | ⬜ | | |
-| RF-10 | Deshacer y rehacer | ⬜ | | |
-| RF-11 | Copiar la imagen al portapapeles | ⬜ | | |
-| RF-12 | Guardar en carpeta local y «Guardar como» | ⬜ | | Borrador 1: solo Guardar, PNG |
-| RF-13 | Configurar carpeta, formato, calidad JPG y patrón de nombre | ⬜ | | Borrador 1: carpeta y formato |
-| RF-14 | Configuración desde la bandeja, preferencias persistentes | ✅ | `App.xaml.cs` (menú de bandeja), `Settings\SettingsWindow.xaml` | Menú con las 4 entradas del SRS §9; `CapturaLocal.exe --configuracion` abre la ventana; las preferencias sobreviven al reinicio |
-| RF-15 | Cancelar captura o descartar edición, con confirmación | ⬜ | | |
+| RF-02 | Asignar combinación de teclas desde Configuración | ✅ | `Settings\SettingsWindow.xaml.cs`, `Settings\HotkeyDefinition.cs`, `Interop\HotKeyManager.cs` | Con la app corriendo, registrar `Ctrl+Shift+2` desde otro proceso devuelve 1409; sin ella se registra sin problema. 12 pruebas de ida y vuelta del formato guardado |
+| RF-03 | Validar combinaciones reservadas o en uso, explicando el motivo | ✅ | `Interop\HotKeyManager.cs` (`Validate` + `DescribeFailure`) | Arrancar con `Win+Shift+S` en settings.json: el log da el motivo exacto, la app sigue viva y las preferencias no se tocan |
+| RF-04 | Elegir modo predeterminado (región / ventana / pantalla) | 🚧 | `Capture\CaptureService.cs` | Solo modo región. Ventana activa y pantalla completa van al borrador 2 |
+| RF-05 | Arrastrar, ajustar o cancelar la selección | ✅ | `Capture\OverlayWindow.xaml.cs`, `Capture\SelectionSession.cs` | `probar-captura.ps1`: arrastra una región conocida y compara el PNG con una referencia de pantalla → 26 800/26 800 píxeles idénticos. Esc y clic derecho cancelan |
+| RF-06 | Abrir el editor de inmediato, a escala y con zoom | ✅ | `Editor\EditorWindow.xaml.cs` (`FitZoomToWindow`, `Scroller_PreviewMouseWheel`) | El editor abre solo al soltar; la imagen se ajusta a la ventana sin ampliarse por encima del 100 %; Ctrl+rueda hace zoom entre 10 % y 800 % |
+| RF-07 | Herramientas: selección, lápiz, línea, rectángulo, elipse, texto | 🚧 | `Editor\Annotations\`, `Editor\AnnotationCanvas.cs` | Cinco herramientas: seleccionar, lápiz, rectángulo, texto y **pixelar** (añadida a petición). **Faltan línea y elipse**, van al borrador 2 |
+| RF-08 | Color y grosor por herramienta; texto con color y tamaño | ✅ | `Editor\EditorWindow.xaml.cs`, `Editor\Annotations\Annotation.cs` | 6 colores y 6 grosores en la barra; en la herramienta de texto el grosor gobierna el tamaño de letra |
+| RF-09 | Seleccionar una anotación para moverla o eliminarla | ✅ | `Editor\AnnotationCanvas.cs` (`HitTest`, `DeleteSelected`) | Posible porque las anotaciones son objetos y no píxeles (ADR-005). Gana la marca dibujada más recientemente; `Supr` la borra |
+| RF-10 | Deshacer y rehacer | ✅ | `Editor\UndoStack.cs` | 6 pruebas unitarias: ida y vuelta, rama abandonada tras deshacer, borrado que vuelve a su índice original, movimiento reversible exacto |
+| RF-11 | Copiar la imagen al portapapeles | ✅ | `Services\ClipboardService.cs` | 8 reintentos con espera: el portapapeles es exclusivo y cualquier app puede tenerlo abierto justo en ese instante |
+| RF-12 | Guardar en carpeta local y «Guardar como» | 🚧 | `Services\SaveService.cs` | Guardar en PNG funciona, con confirmación de sobrescritura y escritura a temporal + intercambio. **«Guardar como» va al borrador 2** |
+| RF-13 | Configurar carpeta, formato, calidad JPG y patrón de nombre | 🚧 | `Settings\SettingsWindow.xaml`, `Settings\AppSettings.cs` | Carpeta y registro configurables. **Formato JPG, calidad y patrón de nombre van al borrador 2** |
+| RF-14 | Configuración desde la bandeja, preferencias persistentes | ✅ | `App.xaml.cs`, `Settings\SettingsWindow.xaml` | Menú con las 4 entradas del SRS §9; `--configuracion` abre la ventana; las preferencias sobreviven al reinicio |
+| RF-15 | Cancelar captura o descartar edición, con confirmación | ✅ | `Capture\SelectionSession.cs`, `Editor\EditorWindow.xaml.cs` (`OnClosing`) | Esc/clic derecho cancelan la captura; cerrar el editor con marcas sin guardar ofrece Guardar / Descartar / Cancelar |
 
 ## Requisitos no funcionales
 
 | ID | Requisito | Estado | Implementado en | Verificación |
 |---|---|---|---|---|
-| RNF-01 | Overlay en ≤ 500 ms | ✅ | `Interop\ScreenCapture.cs`, `Capture\CaptureService.cs` | El propio log lo mide: **323 ms** en un monitor 2560×1440, incluyendo el arranque en frío del proceso |
-| RNF-02 | Captura visible en el editor en ≤ 1,5 s a 4K | ⬜ | | |
-| RNF-03 | Sin transmisión de capturas ni telemetría | ⬜ | | `git grep -nE 'HttpClient\|WebClient\|WebRequest\|Socket\|telemetr' -- src` vacío |
-| RNF-04 | Fallo al guardar conserva la edición y avisa | ⬜ | | |
-| RNF-05 | Guardar/Copiar/Deshacer/Cancelar visibles o con atajo | ⬜ | | |
-| RNF-06 | Navegable por teclado, con etiquetas accesibles | ⬜ | | |
-| RNF-07 | Múltiples monitores y escala DPI | 🚧 | `app.manifest` (PerMonitorV2), `Interop\MonitorInfo.cs`, `Capture\OverlayWindow.xaml.cs` | Implementado (un overlay por monitor, coordenadas en píxeles físicos, `SetWindowPos` exacto, `GetCursorPos` en vez de coordenadas WPF). **Sin verificar:** el equipo de desarrollo tiene un solo monitor, así que la ruta de escalas mixtas no se ha ejercitado. Ver «Deuda conocida» en `.claude\CLAUDE.md` |
-| RNF-08 | Preferencias locales, versionadas y recuperables | ✅ | `Settings\SettingsStore.cs`, `Settings\AppSettings.cs` | `%LOCALAPPDATA%\CapturaLocal\settings.json` con `SchemaVersion`; escritura atómica (temp + `File.Replace`); un JSON dañado se aparta como `settings.corrupto-*.json` y se arranca con valores de fábrica |
+| RNF-01 | Overlay en ≤ 500 ms | ✅ | `Interop\ScreenCapture.cs`, `Capture\CaptureService.cs` | El log lo mide: **323 ms** en un monitor 2560×1440, incluyendo el arranque en frío del proceso |
+| RNF-02 | Captura visible en el editor en ≤ 1,5 s a 4K | 🚧 | `Capture\CaptureService.cs` | No medido: no hay pantalla 4K disponible. A 2560×1440 el editor abre de forma inmediata |
+| RNF-03 | Sin transmisión de capturas ni telemetría | ✅ | Todo `src\` | `git grep -nE 'HttpClient\|WebClient\|WebRequest\|Socket\|telemetr' -- src` devuelve vacío. Cero `PackageReference` en la app (ADR-001), así que no hay dependencia que pueda abrir una conexión |
+| RNF-04 | Fallo al guardar conserva la edición y avisa | ✅ | `Services\SaveService.cs`, `Editor\EditorWindow.xaml.cs` | Ningún camino de error cierra la ventana; cada excepción se traduce a un mensaje que dice explícitamente que la captura no se ha perdido |
+| RNF-05 | Guardar/Copiar/Deshacer/Cancelar visibles o con atajo | ✅ | `Editor\EditorWindow.xaml` | Los cuatro son botones visibles **y** tienen atajo: Ctrl+S, Ctrl+C, Ctrl+Z, Esc |
+| RNF-06 | Navegable por teclado, con etiquetas accesibles | ✅ | `Editor\EditorWindow.xaml`, `Settings\SettingsWindow.xaml` | `AutomationProperties.Name` en todos los controles principales; el grabador de atajo deja pasar el tabulador a propósito para no atrapar el foco |
+| RNF-07 | Múltiples monitores y escala DPI | 🚧 | `app.manifest`, `Interop\MonitorInfo.cs`, `Capture\OverlayWindow.xaml.cs` | Implementado: un overlay por monitor, píxeles físicos, `SetWindowPos` exacto, `GetCursorPos` en vez de coordenadas WPF. **Sin verificar:** el equipo de desarrollo tiene un solo monitor |
+| RNF-08 | Preferencias locales, versionadas y recuperables | ✅ | `Settings\SettingsStore.cs`, `Settings\AppSettings.cs` | `SchemaVersion` + escritura atómica; un JSON dañado se aparta como `settings.corrupto-*.json` y la app arranca con valores de fábrica |
 
 ## Criterios de aceptación (SRS §11)
 
 | Escenario | Estado | Cómo se ejercita |
 |---|---|---|
-| Atajo personalizado | ✅ | `scratchpad\probar-atajo.ps1`: intenta registrar la combinación desde otro proceso y distingue LIBRE de OCUPADO (1409) |
+| Atajo personalizado | ✅ | `probar-atajo.ps1`: intenta registrar la combinación desde otro proceso y distingue LIBRE de OCUPADO (1409) |
 | Atajo inválido | ✅ | Poner `"Hotkey": "Win+Shift+S"` en `settings.json` y arrancar: el log da el motivo y se conserva la configuración previa |
-| Captura y anotación | ⬜ | |
-| Deshacer / rehacer | ⬜ | |
-| Guardado local | ⬜ | |
-| Privacidad | ⬜ | |
+| Captura y anotación | 🚧 | `probar-editor.ps1`: captura 800×500, dibuja con lápiz, rectángulo y pixelado, guarda, y cuenta 5 441 píxeles rojos en el PNG. **Línea y elipse no existen todavía**, así que el criterio completo no se cumple |
+| Deshacer / rehacer | ✅ | 6 pruebas unitarias sobre `UndoStack` + el recorrido de `probar-editor.ps1` (deshacer ×2, rehacer ×2) |
+| Guardado local | ✅ | `probar-editor.ps1`: el PNG aparece en la carpeta configurada con las marcas incrustadas, y el editor informa de la ruta |
+| Privacidad | ✅ | El `git grep` de RNF-03 devuelve vacío. Pendiente de comprobación con analizador de tráfico en una sesión real |
+
+## Resumen del borrador 1
+
+**11 de 14 requisitos funcionales completos**, 3 parciales por alcance decidido (modos de
+captura, línea/elipse, JPG y «Guardar como»). **6 de 8 no funcionales completos**; RNF-02 sin
+medir por falta de pantalla 4K y RNF-07 sin verificar por falta de un segundo monitor.

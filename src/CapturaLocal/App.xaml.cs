@@ -120,11 +120,9 @@ public partial class App : Application
             var image = await Capture.CaptureService.CaptureRegionAsync();
             if (image is null) return;
 
-            // El editor llega en el Paso 5. Mientras tanto la captura se guarda tal cual para
-            // poder comprobar que el recorte es exacto.
-            Capture.CapturePreview.SaveForVerification(image, _settings.SaveFolder);
-            Notify($"Captura de {image.PixelWidth} × {image.PixelHeight} px guardada. " +
-                   "El editor llega en el siguiente paso.");
+            var editor = new Editor.EditorWindow(image, _settings);
+            editor.Show();
+            editor.Activate();
         }
         catch (Exception ex)
         {

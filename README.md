@@ -13,9 +13,17 @@ global, la abre de inmediato en un editor ligero y la guarda **solo en tu equipo
 
 ## Estado
 
-**Borrador 1 (vertical slice)** — en construcción. La cadena completa atajo → región → editor →
-guardar, con cinco herramientas de anotación. Lo que quedó fuera está en
-[`docs/DECISIONS.md`](docs/DECISIONS.md) y en las Notas vivas de `.claude/CLAUDE.md`.
+**Borrador 1 (vertical slice) — funcionando.** La cadena completa atajo → región → editor →
+copiar/guardar, con cinco herramientas de anotación (seleccionar, lápiz, rectángulo, texto y
+pixelar) y deshacer/rehacer.
+
+Qué está hecho y cómo se comprobó: [`docs/TRAZABILIDAD.md`](docs/TRAZABILIDAD.md).
+Por qué está hecho así: [`docs/DECISIONS.md`](docs/DECISIONS.md).
+Cómo se usa: [`docs/MANUAL.md`](docs/MANUAL.md).
+
+Pendiente para el borrador 2: modos ventana y pantalla completa, herramientas de línea y
+elipse, JPG con calidad, «Guardar como», patrón de nombre configurable, iniciar con Windows,
+captura temporizada e instalador.
 
 ## Requisitos
 
@@ -28,6 +36,7 @@ guardar, con cinco herramientas de anotación. Lo que quedó fuera está en
 ```powershell
 cd C:\CODE\Cut
 dotnet build src\CapturaLocal\CapturaLocal.csproj
+dotnet test  tests\CapturaLocal.Tests
 dotnet run   --project src\CapturaLocal\CapturaLocal.csproj
 ```
 
@@ -39,7 +48,8 @@ La app no abre ventana al arrancar: vive en el **icono de la bandeja del sistema
 Cut\
 ├── .claude\        Convenciones del proyecto para Claude Code (CLAUDE.md, settings, skills)
 ├── docs\           SRS, decisiones de arquitectura (ADR), trazabilidad y manual
-└── src\            Código de la aplicación (CapturaLocal, WPF / .NET 8)
+├── src\            Código de la aplicación (CapturaLocal, WPF / .NET 8)
+└── tests\          Pruebas unitarias (xunit) de la lógica pura
 ```
 
 Este árbol lista **solo carpetas que existen**. Si se crea una, se documenta en el mismo commit.

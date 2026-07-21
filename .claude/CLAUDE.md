@@ -71,9 +71,10 @@ no hacer nada, mira el área de notificaciones.
 
 ## Notas vivas
 
-- **Borrador 1 en curso.** Alcance: región (no ventana ni pantalla completa), herramientas
-  selección/lápiz/rectángulo/texto/pixelado (no línea ni elipse), guardado PNG (no JPG ni
-  "Guardar como"), atajo configurable, bandeja, preferencias versionadas.
+- **Borrador 1 terminado y verificado.** Alcance: región (no ventana ni pantalla completa),
+  herramientas selección/lápiz/rectángulo/texto/pixelado (no línea ni elipse), guardado PNG
+  (no JPG ni "Guardar como"), atajo configurable, bandeja, preferencias versionadas.
+  34 pruebas unitarias en verde. Estado por requisito en `docs\TRAZABILIDAD.md`.
 - **Fuera del borrador 1, va al 2:** modos ventana y pantalla completa · línea y elipse · JPG con
   calidad · Guardar como · patrón de nombre configurable · iniciar con Windows · rotación de logs ·
   instalador · captura temporizada.
