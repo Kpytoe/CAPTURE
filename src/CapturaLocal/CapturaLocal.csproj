@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <!-- WinForms se usa exclusivamente para NotifyIcon: WPF no tiene icono de bandeja. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>CapturaLocal</AssemblyName>
+    <RootNamespace>CapturaLocal</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+    <!--
+      WFAC010: el analizador de WinForms pide configurar el DPI con ApplicationHighDpiMode en
+      vez del manifiesto. No aplica aqui: esto es una app WPF y ApplicationConfiguration.
+      Initialize() nunca se llama. Ademas el manifiesto declara el DPI antes de que corra la
+      primera linea de codigo administrado, que es justo lo que necesita el overlay de captura.
+    -->
+    <NoWarn>$(NoWarn);WFAC010</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    Cero PackageReference a proposito. Sin dependencias, la promesa de privacidad
+    (RNF-03) es verificable con un grep. Ver ADR-001 en docs\DECISIONS.md.
+  -->
+
+  <ItemGroup>
+    <Resource Include="Assets\app.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!--
+      WinForms entra solo por NotifyIcon, pero sus usings implicitos chocan de frente
+      con los de WPF: Application, MessageBox, Color, Point y Rectangle quedan ambiguos.
+      Se quitan del conjunto implicito y esos tipos se escriben con nombre completo.
+    -->
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+</Project>

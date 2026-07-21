@@ -1,0 +1,10 @@
+<Application x:Class="CapturaLocal.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <!--
+      Sin StartupUri: la aplicacion no abre ventana al arrancar, vive en la bandeja.
+      ShutdownMode=OnExplicitShutdown para que cerrar el editor no cierre la aplicacion.
+    -->
+    <Application.Resources />
+</Application>

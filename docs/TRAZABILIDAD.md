@@ -21,7 +21,7 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 | RF-11 | Copiar la imagen al portapapeles | ⬜ | | |
 | RF-12 | Guardar en carpeta local y «Guardar como» | ⬜ | | Borrador 1: solo Guardar, PNG |
 | RF-13 | Configurar carpeta, formato, calidad JPG y patrón de nombre | ⬜ | | Borrador 1: carpeta y formato |
-| RF-14 | Configuración desde la bandeja, preferencias persistentes | ⬜ | | |
+| RF-14 | Configuración desde la bandeja, preferencias persistentes | 🚧 | `App.xaml.cs` (menú de bandeja), `Settings\SettingsStore.cs` | Menú con las 4 entradas del SRS §9; las preferencias sobreviven al reinicio. Falta la ventana de Configuración (Paso 3) |
 | RF-15 | Cancelar captura o descartar edición, con confirmación | ⬜ | | |
 
 ## Requisitos no funcionales
@@ -35,7 +35,7 @@ Estado: ✅ hecho y verificado · 🚧 en curso · ⬜ borrador 2
 | RNF-05 | Guardar/Copiar/Deshacer/Cancelar visibles o con atajo | ⬜ | | |
 | RNF-06 | Navegable por teclado, con etiquetas accesibles | ⬜ | | |
 | RNF-07 | Múltiples monitores y escala DPI | ⬜ | | |
-| RNF-08 | Preferencias locales, versionadas y recuperables | ⬜ | | |
+| RNF-08 | Preferencias locales, versionadas y recuperables | ✅ | `Settings\SettingsStore.cs`, `Settings\AppSettings.cs` | `%LOCALAPPDATA%\CapturaLocal\settings.json` con `SchemaVersion`; escritura atómica (temp + `File.Replace`); un JSON dañado se aparta como `settings.corrupto-*.json` y se arranca con valores de fábrica |
 
 ## Criterios de aceptación (SRS §11)
 
