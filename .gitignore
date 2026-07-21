@@ -1,0 +1,28 @@
+# --- Secretos: nunca, bajo ninguna circunstancia (skill `arranque` §2.1) ---
+.env
+.env.*
+!.env.example
+*.pfx
+*.snk
+*.key
+credentials.*
+
+# --- Artefactos de build .NET ---
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+artifacts/
+publish/
+TestResults/
+
+# --- Editores / IDE ---
+.vs/
+.idea/
+*.swp
+
+# --- Windows ---
+Thumbs.db
+desktop.ini
