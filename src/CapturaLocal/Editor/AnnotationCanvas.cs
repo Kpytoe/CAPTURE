@@ -33,6 +33,12 @@ public sealed class AnnotationCanvas : FrameworkElement
     /// </summary>
     private Point _dragAnchor;
 
+    /// <summary>
+    /// Cuadro que el usuario esta arrastrando con la herramienta de texto. No es una anotacion:
+    /// al soltar se convierte en el cuadro donde se escribe, y el texto llega despues.
+    /// </summary>
+    private Rect? _textDraft;
+
     public AnnotationCanvas(BitmapSource image)
     {
         _image = image;
@@ -60,8 +66,11 @@ public sealed class AnnotationCanvas : FrameworkElement
     /// <summary>Avisa de cualquier cambio para refrescar botones y titulo de la ventana.</summary>
     public event Action? Changed;
 
-    /// <summary>Pide a la ventana que abra el editor de texto en un punto.</summary>
-    public event Action<Point>? TextRequested;
+    /// <summary>
+    /// Pide a la ventana que abra el editor de texto. Un rectangulo de tamano cero es un clic
+    /// sin arrastre: el cuadro se abre ahi con el ancho por defecto.
+    /// </summary>
+    public event Action<Rect>? TextRequested;
 
     public Annotation? Selected
     {
@@ -88,6 +97,17 @@ public sealed class AnnotationCanvas : FrameworkElement
             };
 
             dc.DrawRectangle(null, pen, bounds);
+        }
+
+        // Igual que el marcador de seleccion: guia del editor, no parte de la imagen.
+        if (_textDraft is { } draft)
+        {
+            var pen = new Pen(new SolidColorBrush(Color), 1)
+            {
+                DashStyle = new DashStyle(new double[] { 4, 3 }, 0),
+            };
+
+            dc.DrawRectangle(null, pen, draft);
         }
     }
 
@@ -150,12 +170,32 @@ public sealed class AnnotationCanvas : FrameworkElement
                 };
                 break;
 
+            case EditorTool.Ellipse:
+                _inProgress = new EllipseAnnotation
+                {
+                    Color = Color,
+                    Thickness = Thickness,
+                    Rect = new Rect(point, point),
+                };
+                break;
+
+            case EditorTool.Line:
+                _inProgress = new LineAnnotation
+                {
+                    Color = Color,
+                    Thickness = Thickness,
+                    Start = point,
+                    End = point,
+                };
+                break;
+
             case EditorTool.Pixelate:
                 _inProgress = new PixelateAnnotation(_image) { Rect = new Rect(point, point) };
                 break;
 
             case EditorTool.Text:
-                TextRequested?.Invoke(point);
+                _textDraft = new Rect(point, point);
+                CaptureMouse();
                 return;
         }
 
@@ -179,6 +219,18 @@ public sealed class AnnotationCanvas : FrameworkElement
             return;
         }
 
+        // Mayus fuerza la proporcion: cuadrado, circulo, o linea en multiplos de 45 grados.
+        var constrained = Keyboard.Modifiers.HasFlag(ModifierKeys.Shift);
+
+        if (_textDraft is not null)
+        {
+            // Recortado a la imagen: un cuadro que se sale haria crecer la rejilla que contiene
+            // el lienzo y lo desplazaria mientras se escribe.
+            _textDraft = Rect.Intersect(Normalize(_dragAnchor, point), new Rect(RenderSize));
+            InvalidateVisual();
+            return;
+        }
+
         switch (_inProgress)
         {
             case PencilAnnotation pencil:
@@ -186,7 +238,15 @@ public sealed class AnnotationCanvas : FrameworkElement
                 break;
 
             case RectangleAnnotation rectangle:
-                rectangle.Rect = Normalize(_dragAnchor, point);
+                rectangle.Rect = Normalize(_dragAnchor, constrained ? Square(_dragAnchor, point) : point);
+                break;
+
+            case EllipseAnnotation ellipse:
+                ellipse.Rect = Normalize(_dragAnchor, constrained ? Square(_dragAnchor, point) : point);
+                break;
+
+            case LineAnnotation line:
+                line.End = constrained ? SnapTo45(_dragAnchor, point) : point;
                 break;
 
             case PixelateAnnotation pixelate:
@@ -219,6 +279,16 @@ public sealed class AnnotationCanvas : FrameworkElement
             return;
         }
 
+        if (_textDraft is { } draft)
+        {
+            _textDraft = null;
+            InvalidateVisual();
+
+            // Un arrastre minimo es un clic con pulso inestable, no un cuadro de 3 px de ancho.
+            TextRequested?.Invoke(draft.Width < 10 ? new Rect(_dragAnchor, new Size(0, 0)) : draft);
+            return;
+        }
+
         if (_inProgress is null) return;
 
         var finished = _inProgress;
@@ -230,6 +300,8 @@ public sealed class AnnotationCanvas : FrameworkElement
         {
             PencilAnnotation pencil => pencil.IsEmpty,
             RectangleAnnotation rectangle => rectangle.Rect.Width < 2 || rectangle.Rect.Height < 2,
+            EllipseAnnotation ellipse => ellipse.Rect.Width < 2 || ellipse.Rect.Height < 2,
+            LineAnnotation line => line.IsEmpty,
             PixelateAnnotation pixelate => pixelate.Rect.Width < 2 || pixelate.Rect.Height < 2,
             _ => false,
         };
@@ -248,6 +320,24 @@ public sealed class AnnotationCanvas : FrameworkElement
         Math.Min(anchor.Y, current.Y),
         Math.Abs(current.X - anchor.X),
         Math.Abs(current.Y - anchor.Y));
+
+    /// <summary>Lleva el punto a la diagonal del ancla: el lado mayor manda.</summary>
+    private static Point Square(Point anchor, Point current)
+    {
+        var side = Math.Max(Math.Abs(current.X - anchor.X), Math.Abs(current.Y - anchor.Y));
+        return new Point(
+            anchor.X + side * Math.Sign(current.X - anchor.X),
+            anchor.Y + side * Math.Sign(current.Y - anchor.Y));
+    }
+
+    /// <summary>Gira el punto al multiplo de 45 grados mas cercano, conservando la distancia.</summary>
+    private static Point SnapTo45(Point anchor, Point current)
+    {
+        var offset = current - anchor;
+        var step = Math.PI / 4;
+        var angle = Math.Round(Math.Atan2(offset.Y, offset.X) / step) * step;
+        return anchor + new Vector(Math.Cos(angle), Math.Sin(angle)) * offset.Length;
+    }
 
     // --- Operaciones del editor ---
 

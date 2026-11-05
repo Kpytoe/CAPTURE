@@ -127,3 +127,46 @@ renderizarse, pero tampoco lo modifica: se dibuja como un recorte submuestreado 
 
 **Reversibilidad.** Baja en la práctica — es el modelo central del editor. Es la decisión más
 costosa de revertir de las cinco, y por eso está escrita.
+
+---
+
+## ADR-006 — Tema propio en XAML, con iconos vectoriales escritos a mano
+
+**Fecha:** 2026-07-22
+
+**Contexto.** El borrador 1 funcionaba pero no se veía terminado: la barra del editor era
+oscura (`#2D2D30`) y encima flotaban `ToggleButton` y `ComboBox` con el chrome **claro por
+defecto de WPF**. Las herramientas eran texto plano en botones de 86 px, el color se elegía en
+un desplegable que decía «Rojo» en vez de enseñar rojo, y ninguna ventana declaraba `Icon`, así
+que en la barra de tareas salía el icono genérico de WPF y no `Assets\app.ico`.
+
+**Decisión.**
+1. Un único `src\CapturaLocal\Theme.xaml` con los colores, los iconos y los estilos, fusionado
+   en `App.xaml`. Un archivo, no una carpeta: el árbol del README no se toca por esto.
+2. Los **iconos son geometrías `Path` escritas en ese archivo**, no glifos de una fuente.
+3. Color y grosor pasan de dos `ComboBox` a **muestras en línea**: seis círculos y seis puntos.
+4. La barra de título se pinta en oscuro con `DwmSetWindowAttribute`
+   (`DWMWA_USE_IMMERSIVE_DARK_MODE`), vía el `DllImport` que manda la convención, en
+   `Interop\NativeMethods.cs`.
+
+**Porqué los iconos no son una fuente.** `Segoe MDL2 Assets` viene con Windows 10 y 11 y habría
+sido menos código. Pero es una dependencia externa igual: si la fuente falta o el sistema la
+sustituye, la barra se llena de cuadros vacíos, y eso pasa en el equipo del usuario, no en el
+build. Una geometría no puede fallar, es nítida a cualquier DPI y — al pintarse con el
+`Foreground` del botón — cambia de color con el estado sin duplicar recursos. La misma lógica
+de ADR-001 aplicada a la capa visual: menos cosas de las que depender, menos formas de romperse.
+
+**Porqué muestras en vez de desplegables.** Un `ComboBox` de colores exige dos clics y muestra
+el nombre del color, no el color. Las muestras son un clic, enseñan lo que hacen y ocupan menos
+ancho. De paso evitan replantillar `ComboBox` + `ComboBoxItem` + `Popup`, que es lo más verboso
+de todo el tema. Cada muestra lleva `AutomationProperties.Name`, así que RNF-06 se mantiene.
+
+**Alternativas descartadas.**
+- *Barra de título propia con `WindowChrome`:* control total del aspecto a cambio de
+  reimplementar arrastrar, maximizar, ajustar a los bordes y el menú del sistema. Mucho riesgo
+  para una ventana que se abre y se cierra en veinte segundos.
+- *Un paquete de tema (MahApps, ModernWpf):* rompe ADR-001 de frente. Todo el argumento de
+  privacidad auditable descansa en que en `src\` no hay ni una dependencia.
+
+**Reversibilidad.** Alta. El tema es un `ResourceDictionary`: quitarlo de `App.xaml` devuelve la
+aplicación al aspecto por defecto de WPF sin tocar una línea de lógica.

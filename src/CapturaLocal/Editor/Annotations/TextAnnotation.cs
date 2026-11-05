@@ -7,7 +7,14 @@ namespace CapturaLocal.Editor.Annotations;
 /// <summary>Texto sobre la captura, con color y tamano configurables (RF-08).</summary>
 public sealed class TextAnnotation : Annotation
 {
-    private static readonly Typeface Face = new("Segoe UI");
+    /// <summary>
+    /// Publica para que el cuadro donde se escribe use la misma fuente: si no, el texto se
+    /// partiria en lineas distintas al escribirlo y al dibujarlo.
+    /// </summary>
+    public static readonly FontFamily Family = new("Segoe UI");
+
+    private static readonly Typeface Face =
+        new(Family, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
 
     private FormattedText? _cached;
     private string _text = string.Empty;

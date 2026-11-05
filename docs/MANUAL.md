@@ -26,12 +26,19 @@ Para cancelar sin capturar: **Esc** o **clic derecho**.
 |---|---|---|
 | Seleccionar | `S` | Elige una marca ya hecha para moverla o borrarla con `Supr` |
 | Lápiz | `L` | Dibujo libre |
-| Rectángulo | `R` | Recuadro |
-| Texto | `T` | Clic donde quieras escribir; `Intro` confirma, `Esc` descarta |
+| Figuras → Rectángulo | `R` | Recuadro. Con `Mayús`, cuadrado |
+| Figuras → Círculo | `C` | Elipse. Con `Mayús`, círculo perfecto |
+| Figuras → Línea | `N` | Línea recta. Con `Mayús`, en pasos de 45° |
+| Texto | `T` | Arrastra para marcar el cuadro donde escribir: el texto salta de línea en su borde y el cuadro crece hacia abajo si no cabe. Si el cuadro es tan estrecho que no caben unas pocas letras, se ensancha con el texto hasta el borde de la imagen. Un clic sin arrastrar abre un cuadro que se ensancha con el texto. `Intro` confirma, `Esc` descarta |
 | Pixelar | `P` | Tapa información sensible con bloques |
 
-El **color** y el **grosor** de la barra superior se aplican a la siguiente marca que dibujes.
-En la herramienta de texto, el grosor controla el tamaño de la letra.
+Las tres figuras comparten un botón. Un clic en él dibuja la figura que muestra; la flecha
+pegada a su derecha abre el menú para cambiarla, y el botón recuerda la última elegida.
+
+En la barra superior, los seis círculos eligen el **color** y los seis puntos el **grosor**; el
+que esté activo lleva un anillo azul. Se aplican a la siguiente marca que dibujes. Con la
+herramienta de texto, esos puntos controlan el **tamaño** de la letra y la etiqueta cambia para
+recordarlo.
 
 **Ctrl + rueda del ratón** hace zoom. La rueda sola desplaza la imagen. El zoom es solo para
 ver: no afecta a lo que se guarda.
@@ -44,8 +51,9 @@ borrados. Ojo: si deshaces y luego dibujas algo nuevo, lo deshecho ya no se pued
 ## Guardar y copiar
 
 - **Ctrl + S** o **Guardar**: escribe un PNG en tu carpeta configurada, con el nombre
-  `Captura_2026-07-21_13-36-57.png`. Si ya existiera un archivo con ese nombre, te pregunta
-  antes de sobrescribirlo.
+  `Captura_2026-07-21_13-36-57.png`. La ruta aparece abajo a la izquierda, junto a un enlace
+  **Abrir carpeta** por si quieres verlo en el explorador. Si ya existiera un archivo con ese
+  nombre, te pregunta antes de sobrescribirlo.
 - **Ctrl + C** o **Copiar**: al portapapeles, listo para pegar en un correo o un chat. No hace
   falta guardar antes.
 - **Esc** o **Cancelar**: descarta la captura. Si tenías marcas sin guardar, primero pregunta.

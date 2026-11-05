@@ -31,6 +31,8 @@ public partial class SettingsWindow : Window
 
         UpdateHotkeyWarning();
         UpdateFolderWarning();
+
+        SourceInitialized += (_, _) => WindowTheming.UseDarkTitleBar(this);
     }
 
     // --- Grabador de atajo ---

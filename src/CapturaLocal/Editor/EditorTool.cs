@@ -1,12 +1,17 @@
 namespace CapturaLocal.Editor;
 
-/// <summary>Herramientas del borrador 1. Linea y elipse (RF-07) llegan en el borrador 2.</summary>
+/// <summary>Herramientas del editor (RF-07).</summary>
 public enum EditorTool
 {
     /// <summary>Seleccionar una anotacion para moverla o borrarla (RF-09).</summary>
     Select,
     Pencil,
+
+    // Las tres figuras comparten un solo boton en la barra, con un menu para elegir cual.
     Rectangle,
+    Ellipse,
+    Line,
+
     Text,
     Pixelate,
 }

@@ -6,5 +6,11 @@
       Sin StartupUri: la aplicacion no abre ventana al arrancar, vive en la bandeja.
       ShutdownMode=OnExplicitShutdown para que cerrar el editor no cierre la aplicacion.
     -->
-    <Application.Resources />
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

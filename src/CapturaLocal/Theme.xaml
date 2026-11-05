@@ -1,0 +1,483 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+      Tema unico de la aplicacion: colores, iconos y estilos.
+
+      Los iconos son geometrias escritas aqui, no glifos de una fuente. Una fuente del sistema
+      (Segoe MDL2) seria menos codigo, pero es una dependencia externa que puede faltar y
+      pintar cuadros vacios; una geometria no puede fallar y ademas cambia de color con el
+      estado del boton sin duplicar recursos. Ver ADR-006 en docs\DECISIONS.md.
+    -->
+
+    <!-- ================= Colores ================= -->
+
+    <Color x:Key="ColorLienzo">#FF121213</Color>
+    <Color x:Key="ColorSuperficie">#FF1B1B1E</Color>
+    <Color x:Key="ColorSuperficieAlta">#FF26262B</Color>
+    <Color x:Key="ColorBorde">#FF2E2E34</Color>
+    <Color x:Key="ColorTexto">#FFECECEE</Color>
+    <Color x:Key="ColorTextoSuave">#FF8B8B95</Color>
+
+    <!-- El mismo azul que ya usan el borde de seleccion del overlay y el marcador del lienzo. -->
+    <Color x:Key="ColorAcento">#FF2F7FF9</Color>
+    <Color x:Key="ColorAviso">#FFE0A33E</Color>
+
+    <SolidColorBrush x:Key="PincelLienzo" Color="{StaticResource ColorLienzo}" />
+    <SolidColorBrush x:Key="PincelSuperficie" Color="{StaticResource ColorSuperficie}" />
+    <SolidColorBrush x:Key="PincelSuperficieAlta" Color="{StaticResource ColorSuperficieAlta}" />
+    <SolidColorBrush x:Key="PincelBorde" Color="{StaticResource ColorBorde}" />
+    <SolidColorBrush x:Key="PincelTexto" Color="{StaticResource ColorTexto}" />
+    <SolidColorBrush x:Key="PincelTextoSuave" Color="{StaticResource ColorTextoSuave}" />
+    <SolidColorBrush x:Key="PincelAcento" Color="{StaticResource ColorAcento}" />
+    <SolidColorBrush x:Key="PincelAcentoTenue" Color="{StaticResource ColorAcento}" Opacity="0.18" />
+    <SolidColorBrush x:Key="PincelAviso" Color="{StaticResource ColorAviso}" />
+    <SolidColorBrush x:Key="PincelCampo" Color="#FF232329" />
+
+    <!-- ================= Iconos ================= -->
+    <!-- Todos en un lienzo de 24x24 y con Stretch=Uniform, asi que escalan sin retocarlos. -->
+
+    <Geometry x:Key="IconoSeleccionar">
+        M5,2 L5,21 L9.8,16.6 L12.8,22.8 L15.6,21.4 L12.7,15.5 L19,15.2 Z
+    </Geometry>
+
+    <Geometry x:Key="IconoLapiz">
+        M3,17.25 L3,21 L6.75,21 L17.81,9.94 L14.06,6.19 Z
+        M20.71,7.04 C21.1,6.65 21.1,6.02 20.71,5.63 L18.37,3.29
+        C17.98,2.9 17.35,2.9 16.96,3.29 L15.13,5.12 L18.88,8.87 Z
+    </Geometry>
+
+    <!-- F0 = EvenOdd: el rectangulo interior perfora al exterior y queda un contorno. -->
+    <Geometry x:Key="IconoRectangulo">
+        F0 M3,5 H21 V19 H3 Z M5,7 V17 H19 V7 Z
+    </Geometry>
+
+    <!-- Anillo de 2 px, el mismo trazo que el rectangulo, por el mismo truco EvenOdd. -->
+    <Geometry x:Key="IconoElipse">
+        F0 M3,12 A9,9 0 1 1 21,12 A9,9 0 1 1 3,12 Z M5,12 A7,7 0 1 0 19,12 A7,7 0 1 0 5,12 Z
+    </Geometry>
+
+    <!-- Diagonal de 2 px de grueso, escrita como el paralelogramo que la contiene. -->
+    <Geometry x:Key="IconoLinea">
+        M3.3,19.3 L19.3,3.3 L20.7,4.7 L4.7,20.7 Z
+    </Geometry>
+
+    <!-- Flecha del boton que abre el menu de figuras. -->
+    <Geometry x:Key="IconoDesplegar">
+        M6,9 H18 L12,16 Z
+    </Geometry>
+
+    <Geometry x:Key="IconoTexto">
+        M4,4 H20 V8 H14 V20 H10 V8 H4 Z
+    </Geometry>
+
+    <Geometry x:Key="IconoPixelar">
+        M3,3 H9 V9 H3 Z M15,3 H21 V9 H15 Z M9,9 H15 V15 H9 Z M3,15 H9 V21 H3 Z M15,15 H21 V21 H15 Z
+    </Geometry>
+
+    <Geometry x:Key="IconoDeshacer">
+        M12.5,8 C10.15,8 8.02,8.88 6.38,10.31 L3,7 V16 H12 L8.62,12.62
+        C9.68,11.71 11.02,11.15 12.5,11.15 C15.18,11.15 17.46,12.89 18.26,15.3
+        L20.9,14.44 C19.75,11.03 16.42,8 12.5,8 Z
+    </Geometry>
+
+    <Geometry x:Key="IconoRehacer">
+        M18.4,10.6 C16.55,8.99 14.15,8 11.5,8 C7.58,8 4.25,11.03 3.1,14.44
+        L5.74,15.3 C6.54,12.89 8.82,11.15 11.5,11.15 C12.98,11.15 14.32,11.71 15.38,12.62
+        L12,16 H21 V7 Z
+    </Geometry>
+
+    <!-- ================= Herramientas ================= -->
+
+    <!--
+      Icono arriba y etiqueta debajo. El icono no lleva color propio: se pinta con el
+      Foreground del boton, asi que basta con que los disparadores cambien Foreground para
+      que icono y texto se muevan juntos.
+    -->
+    <Style x:Key="Herramienta" TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+        <Setter Property="Width" Value="62" />
+        <Setter Property="Height" Value="54" />
+        <Setter Property="Margin" Value="0,0,2,0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Fondo"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fondo" Property="Background"
+                                    Value="{StaticResource PincelSuperficieAlta}" />
+                            <Setter Property="Foreground" Value="{StaticResource PincelTexto}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Fondo" Property="Background"
+                                    Value="{StaticResource PincelAcentoTenue}" />
+                            <Setter Property="Foreground" Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Fondo" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Icono de una herramienta: hereda el color del boton que lo contiene. -->
+    <Style x:Key="IconoHerramienta" TargetType="Path">
+        <Setter Property="Width" Value="19" />
+        <Setter Property="Height" Value="19" />
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="Fill"
+                Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ButtonBase}}" />
+    </Style>
+
+    <Style x:Key="EtiquetaHerramienta" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10.5" />
+        <Setter Property="Margin" Value="0,4,0,0" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+    </Style>
+
+    <!-- ================= Muestras de color y grosor ================= -->
+
+    <!-- El color va en Background y lo pinta la elipse; el anillo marca la seleccion. -->
+    <Style x:Key="MuestraColor" TargetType="ToggleButton">
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="Margin" Value="0,0,2,0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Anillo"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="1.5"
+                            CornerRadius="13">
+                        <Ellipse Width="16" Height="16"
+                                 Fill="{TemplateBinding Background}"
+                                 Stroke="#33FFFFFF" StrokeThickness="1" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Anillo" Property="BorderBrush"
+                                    Value="{StaticResource PincelBorde}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Anillo" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Anillo" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- El punto lo pone quien crea el boton, con el diametro del grosor que representa. -->
+    <Style x:Key="MuestraGrosor" TargetType="ToggleButton">
+        <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+        <Setter Property="Width" Value="26" />
+        <Setter Property="Height" Value="26" />
+        <Setter Property="Margin" Value="0,0,2,0" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Fondo"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="6">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fondo" Property="Background"
+                                    Value="{StaticResource PincelSuperficieAlta}" />
+                            <Setter Property="Foreground" Value="{StaticResource PincelTexto}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Fondo" Property="Background"
+                                    Value="{StaticResource PincelAcentoTenue}" />
+                            <Setter Property="Foreground" Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Fondo" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ================= Botones de accion ================= -->
+
+    <Style x:Key="AccionBase" TargetType="Button">
+        <Setter Property="Padding" Value="16,7" />
+        <Setter Property="MinWidth" Value="86" />
+        <Setter Property="Margin" Value="6,0,0,0" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Foreground" Value="{StaticResource PincelTexto}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Fondo"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="6">
+                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fondo" Property="Opacity" Value="0.85" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Fondo" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.35" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="AccionPrimaria" TargetType="Button" BasedOn="{StaticResource AccionBase}">
+        <Setter Property="Background" Value="{StaticResource PincelAcento}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <Style x:Key="AccionSecundaria" TargetType="Button" BasedOn="{StaticResource AccionBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource PincelBorde}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
+    <Style x:Key="AccionFantasma" TargetType="Button" BasedOn="{StaticResource AccionBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+    </Style>
+
+    <!-- Enlace de texto para acciones secundarias que no merecen un boton con caja. -->
+    <Style x:Key="AccionEnlace" TargetType="Button" BasedOn="{StaticResource AccionBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource PincelAcento}" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Padding" Value="8,3" />
+        <Setter Property="Margin" Value="10,0,0,0" />
+    </Style>
+
+    <!-- Boton de solo icono (deshacer / rehacer). -->
+    <Style x:Key="AccionIcono" TargetType="Button" BasedOn="{StaticResource AccionBase}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="MinWidth" Value="0" />
+        <Setter Property="Margin" Value="2,0,0,0" />
+        <Setter Property="Padding" Value="0" />
+    </Style>
+
+    <Style x:Key="IconoAccion" TargetType="Path" BasedOn="{StaticResource IconoHerramienta}">
+        <Setter Property="Width" Value="17" />
+        <Setter Property="Height" Value="17" />
+    </Style>
+
+    <!-- ================= Texto ================= -->
+
+    <Style x:Key="EtiquetaBarra" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Margin" Value="0,0,8,0" />
+    </Style>
+
+    <Style x:Key="TituloSeccion" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource PincelTexto}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontSize" Value="12.5" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <Style x:Key="TextoAyuda" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{StaticResource PincelTextoSuave}" />
+        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="Margin" Value="0,6,0,0" />
+    </Style>
+
+    <!-- Linea divisoria de 1 px: el Separator de WPF se pinta con relieve claro. -->
+    <Style x:Key="Divisor" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PincelBorde}" />
+        <Setter Property="Width" Value="1" />
+        <Setter Property="Margin" Value="10,6" />
+    </Style>
+
+    <Style x:Key="DivisorHorizontal" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource PincelBorde}" />
+        <Setter Property="Height" Value="1" />
+        <Setter Property="Margin" Value="0,18" />
+    </Style>
+
+    <!-- ================= Campos ================= -->
+
+    <!--
+      Solo setters, sin plantilla nueva: el cuadro de texto que el editor crea sobre el lienzo
+      fija a mano Foreground, Background y BorderBrush con el color de la anotacion, y un valor
+      local gana a un setter pero no necesariamente a una plantilla.
+    -->
+    <Style TargetType="TextBox">
+        <Setter Property="Background" Value="{StaticResource PincelCampo}" />
+        <Setter Property="Foreground" Value="{StaticResource PincelTexto}" />
+        <Setter Property="BorderBrush" Value="{StaticResource PincelBorde}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CaretBrush" Value="{StaticResource PincelTexto}" />
+        <Setter Property="SelectionBrush" Value="{StaticResource PincelAcento}" />
+        <Setter Property="Padding" Value="7,5" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{StaticResource PincelTexto}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="Caja"
+                                Width="17" Height="17" CornerRadius="4"
+                                Background="{StaticResource PincelCampo}"
+                                BorderBrush="{StaticResource PincelBorde}"
+                                BorderThickness="1"
+                                VerticalAlignment="Center">
+                            <Path x:Name="Marca"
+                                  Data="M4,8.5 L7,11.5 L13,5"
+                                  Stroke="White" StrokeThickness="2"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Visibility="Collapsed" />
+                        </Border>
+                        <ContentPresenter Margin="9,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Caja" Property="Background"
+                                    Value="{StaticResource PincelAcento}" />
+                            <Setter TargetName="Caja" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                            <Setter TargetName="Marca" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Caja" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Caja" Property="BorderBrush"
+                                    Value="{StaticResource PincelAcento}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ================= Barras de desplazamiento ================= -->
+
+    <!-- Finas y sin botones de flecha: alrededor de una captura, cuanto menos chrome mejor. -->
+    <Style x:Key="PulgarBarra" TargetType="Thumb">
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="Pulgar" Background="#FF3A3A42" CornerRadius="4" Margin="2" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Pulgar" Property="Background" Value="#FF4E4E58" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Width" Value="11" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource PulgarBarra}" />
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0"
+                                              Focusable="False" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0"
+                                              Focusable="False" />
+                            </Track.DecreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="Height" Value="11" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Background="{TemplateBinding Background}">
+                                <Track x:Name="PART_Track">
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource PulgarBarra}" />
+                                    </Track.Thumb>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.PageRightCommand"
+                                                      Opacity="0" Focusable="False" />
+                                    </Track.IncreaseRepeatButton>
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Command="ScrollBar.PageLeftCommand"
+                                                      Opacity="0" Focusable="False" />
+                                    </Track.DecreaseRepeatButton>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

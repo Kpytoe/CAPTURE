@@ -66,8 +66,10 @@ no hacer nada, mira el área de notificaciones.
   píxeles físicos (ADR-004), pero nadie lo ha ejercitado con dos pantallas. Antes de dar por
   bueno RNF-07 hay que probar: seleccionar cruzando el borde entre un monitor al 150 % y otro
   al 100 %, y comprobar que el recorte no sale desplazado.
-- **`Capture\CapturePreview.cs` es un andamio temporal** del Paso 4: vuelca la captura a disco
-  para poder verificar el recorte. Se borra cuando `SaveService` haga el guardado de verdad.
+- **Los estados de interacción del tema nuevo están sin fotografiar.** Hover, anillo de foco de
+  teclado y botón deshabilitado se implementaron con disparadores en `Theme.xaml` y se ven en
+  la app, pero la sesión de verificación se cortó (el equipo estaba en uso remoto) antes de
+  dejar evidencia. Tab por la barra del editor y mira que el foco se vea.
 
 ## Notas vivas
 
@@ -75,9 +77,17 @@ no hacer nada, mira el área de notificaciones.
   herramientas selección/lápiz/rectángulo/texto/pixelado (no línea ni elipse), guardado PNG
   (no JPG ni "Guardar como"), atajo configurable, bandeja, preferencias versionadas.
   34 pruebas unitarias en verde. Estado por requisito en `docs\TRAZABILIDAD.md`.
-- **Fuera del borrador 1, va al 2:** modos ventana y pantalla completa · línea y elipse · JPG con
+- **Fuera del borrador 1, va al 2:** modos ventana y pantalla completa · JPG con
   calidad · Guardar como · patrón de nombre configurable · iniciar con Windows · rotación de logs ·
   instalador · captura temporizada.
+- **Borrador 2, paso 0 terminado:** acabado visual. Todo el aspecto vive en
+  `src\CapturaLocal\Theme.xaml` — colores, iconos (geometrías, no fuente) y estilos. Una
+  herramienta nueva no define colores propios: usa `Herramienta` + `IconoHerramienta` y añade su
+  geometría al tema. Ver ADR-006.
+- **Borrador 2, paso 1 compilado y con pruebas en verde, falta recorrido manual:** figuras
+  (línea, círculo, rectángulo) en un solo botón con menú desplegable, y texto con cuadro
+  definido por arrastre (si es muy estrecho, crece a lo ancho). SDK 8.0.427 instalado con winget
+  el 2026-11-05; `dotnet test` 38/38. Falta el recorrido manual de `nueva-herramienta`.
 - **Hueco en el SRS:** la tabla §6 empieza en RF-02; no existe RF-01. Falta el requisito de
   "invocar la captura mediante atajo global", o hay un error de numeración. Pendiente de aclarar
   con el autor del documento.

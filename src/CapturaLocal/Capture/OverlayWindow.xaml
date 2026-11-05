@@ -35,13 +35,14 @@
 
         <!-- Borde de la seleccion -->
         <Rectangle x:Name="SelectionBorder"
-                   Stroke="#FF2F7FF9" StrokeThickness="1.5"
+                   Stroke="{StaticResource PincelAcento}" StrokeThickness="1.5"
                    HorizontalAlignment="Left" VerticalAlignment="Top"
                    Visibility="Collapsed" IsHitTestVisible="False" />
 
         <!-- Medidas de la region -->
         <Border x:Name="SizeBadge"
-                Background="#E6111111" CornerRadius="3" Padding="8,3"
+                Background="#F21B1B1E" CornerRadius="6" Padding="9,4"
+                BorderBrush="#33FFFFFF" BorderThickness="1"
                 HorizontalAlignment="Left" VerticalAlignment="Top"
                 Visibility="Collapsed" IsHitTestVisible="False">
             <TextBlock x:Name="SizeText" Foreground="White" FontSize="12" FontFamily="Consolas" />
@@ -49,11 +50,17 @@
 
         <!-- Instruccion inicial, solo en el monitor donde esta el raton -->
         <Border x:Name="Hint"
-                Background="#E6111111" CornerRadius="6" Padding="16,10"
+                Background="#F21B1B1E" CornerRadius="10" Padding="20,14"
+                BorderBrush="#33FFFFFF" BorderThickness="1"
                 HorizontalAlignment="Center" VerticalAlignment="Center"
                 IsHitTestVisible="False">
-            <TextBlock Foreground="White" FontSize="14" TextAlignment="Center"
-                       Text="Arrastra para elegir una región&#10;Esc o clic derecho para cancelar" />
+            <StackPanel>
+                <TextBlock Foreground="{StaticResource PincelTexto}" FontSize="14"
+                           TextAlignment="Center" Text="Arrastra para elegir una región" />
+                <TextBlock Foreground="{StaticResource PincelTextoSuave}" FontSize="12"
+                           TextAlignment="Center" Margin="0,5,0,0"
+                           Text="Esc o clic derecho para cancelar" />
+            </StackPanel>
         </Border>
     </Grid>
 </Window>

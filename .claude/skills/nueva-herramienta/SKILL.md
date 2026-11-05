@@ -58,7 +58,27 @@ Reglas que no son negociables:
 ## 4. La barra del editor
 
 `EditorWindow.xaml`: un `ToggleButton` más con `Tag` igual al nombre del enum, `ToolTip` y
-`AutomationProperties.Name` (RNF-06 exige etiquetas accesibles).
+`AutomationProperties.Name` (RNF-06 exige etiquetas accesibles). El contenido es icono arriba y
+etiqueta debajo, con los estilos del tema — **no fijes colores aquí**: el icono se pinta con el
+`Foreground` del botón, que es lo que cambia en hover y al estar activo (ADR-006).
+
+```xml
+<ToggleButton x:Name="ToolLine" Style="{StaticResource Herramienta}" Tag="Line"
+              ToolTip="Línea recta (N)" AutomationProperties.Name="Herramienta línea">
+    <StackPanel>
+        <Path Style="{StaticResource IconoHerramienta}" Data="{StaticResource IconoLinea}" />
+        <TextBlock Style="{StaticResource EtiquetaHerramienta}" Text="Línea" />
+    </StackPanel>
+</ToggleButton>
+```
+
+La geometría `IconoLinea` va en `src\CapturaLocal\Theme.xaml`, junto a las demás, dibujada en un
+lienzo de 24×24 para que encaje con las que ya están.
+
+**Si es una figura** (como línea, círculo o rectángulo), no lleva botón propio: va como un
+`ToggleButton` más dentro de `ShapePopup`, con `Click="ShapeOption_Click"`, y se añade su caso
+en `ShowShape` (etiqueta, icono y marca) y en `ShapePopup_Opened`. El botón `ToolShape` siempre
+muestra la última figura elegida.
 
 `EditorWindow.xaml.cs`, en `SelectTool`: añade la línea que marca o desmarca tu botón —
 funcionan como grupo de opciones excluyentes y se sincronizan a mano.

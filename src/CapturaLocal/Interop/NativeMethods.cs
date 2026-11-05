@@ -81,4 +81,19 @@ internal static class NativeMethods
     [DllImport("gdi32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool DeleteObject(IntPtr hObject);
+
+    // --- Apariencia de la ventana ---
+
+    /// <summary>
+    /// Pinta la barra de titulo en oscuro. Es atributo del gestor de ventanas, no de WPF: sin
+    /// el, una ventana negra se queda con la barra de titulo blanca del sistema.
+    /// </summary>
+    public const int DWMWA_USE_IMMERSIVE_DARK_MODE = 20;
+
+    /// <summary>Numero del atributo antes de Windows 10 1903; en 1809 valia 19.</summary>
+    public const int DWMWA_USE_IMMERSIVE_DARK_MODE_ANTIGUO = 19;
+
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmSetWindowAttribute(IntPtr hWnd, int attribute,
+        ref int value, int size);
 }

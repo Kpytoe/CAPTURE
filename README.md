@@ -17,6 +17,11 @@ global, la abre de inmediato en un editor ligero y la guarda **solo en tu equipo
 copiar/guardar, con cinco herramientas de anotación (seleccionar, lápiz, rectángulo, texto y
 pixelar) y deshacer/rehacer.
 
+**Borrador 2, paso 0 — hecho:** pasada de acabado visual. Tema oscuro propio en `Theme.xaml`,
+herramientas con icono vectorial y etiqueta, color y grosor como muestras en línea, barra de
+título oscura e icono propio de la aplicación. Sin cambios de funcionalidad y sin dependencias
+nuevas (ADR-006).
+
 Qué está hecho y cómo se comprobó: [`docs/TRAZABILIDAD.md`](docs/TRAZABILIDAD.md).
 Por qué está hecho así: [`docs/DECISIONS.md`](docs/DECISIONS.md).
 Cómo se usa: [`docs/MANUAL.md`](docs/MANUAL.md).
