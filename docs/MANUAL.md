@@ -2,6 +2,14 @@
 
 ## Poner en marcha
 
+Descarga `CapturaLocal-X.Y.Z-win-x64.exe` de la página **Releases** del repositorio en GitHub.
+Es un solo archivo y no necesita instalación ni .NET: guárdalo en una carpeta tuya (por ejemplo
+`%LOCALAPPDATA%\Programs\CapturaLocal\`) y ábrelo. La primera vez Windows SmartScreen avisará
+porque el archivo no está firmado: **Más información → Ejecutar de todas formas**.
+
+Para quitarla: **Salir** desde la bandeja y borra el `.exe`. Tus preferencias y el registro
+están en `%LOCALAPPDATA%\CapturaLocal`, por si también quieres borrarlos.
+
 Ejecuta `CapturaLocal.exe`. No se abre ninguna ventana: la aplicación queda esperando en el
 **icono de la bandeja del sistema**.
 
@@ -97,4 +105,4 @@ desactivarlo desde Configuración.
 
 Capturar una ventana concreta o la pantalla completa · herramientas de línea y elipse ·
 guardar en JPG y «Guardar como» · personalizar el patrón del nombre · iniciar con Windows ·
-captura temporizada para menús desplegables · instalador.
+captura temporizada para menús desplegables · instalador con acceso en el menú Inicio.

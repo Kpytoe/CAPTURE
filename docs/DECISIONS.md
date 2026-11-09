@@ -170,3 +170,48 @@ de todo el tema. Cada muestra lleva `AutomationProperties.Name`, así que RNF-06
 
 **Reversibilidad.** Alta. El tema es un `ResourceDictionary`: quitarlo de `App.xaml` devuelve la
 aplicación al aspecto por defecto de WPF sin tocar una línea de lógica.
+
+---
+
+## ADR-007 — Distribución: un `.exe` portable autocontenido en GitHub Releases
+
+**Fecha:** 2026-11-09
+
+**Contexto.** Hasta ahora la app solo corría desde el código (`dotnet run`) o desde un build
+que exige el runtime .NET 8 Desktop instalado. Se pide que alguien entre en el repositorio de
+GitHub, descargue un `.exe` y lo use sin más. El SRS §13 pide una «aplicación instalable para
+Windows, ejecutable local».
+
+**Decisión.**
+1. Un perfil de publicación, `src\CapturaLocal\Properties\PublishProfiles\Portable.pubxml`,
+   que produce **un único `CapturaLocal.exe`** autocontenido (`win-x64`, runtime dentro, DLL
+   nativas de WPF incluidas, comprimido): ~63 MB, funciona en un Windows 10/11 de 64 bits sin
+   .NET instalado.
+2. Un flujo de GitHub Actions, `.github\workflows\release.yml`, que al subir una etiqueta `vX.Y.Z`
+   corre las pruebas, comprueba RNF-03 (ni código de red ni `<PackageReference>` en `src\`),
+   publica el `.exe` con esa versión y lo adjunta a una Release junto con su SHA-256.
+3. Los binarios **no se versionan en git**: `artifacts/` ya está en `.gitignore`.
+
+**Porqué portable y no instalador.** La app ya guarda todo en `%LOCALAPPDATA%\CapturaLocal` y
+no necesita registro, servicios ni permisos de administrador; un instalador solo añadiría el
+acceso directo del menú Inicio y la entrada de «Desinstalar». A cambio exigiría una herramienta
+externa de empaquetado (Inno Setup, WiX) y un segundo artefacto que mantener. El `.exe` portable
+sale de `dotnet publish` con lo que trae el SDK — la misma línea que ADR-001.
+
+**Medido** (2560×1440, un monitor): con `--capturar` en frío el primer overlay tarda 550–620 ms,
+porque el proceso arranca, descomprime y compila en JIT a la vez; las capturas siguientes con el
+atajo, 131–140 ms. Con ReadyToRun el arranque en frío baja a 480–550 ms a cambio de 4 MB más:
+no compensa, porque el uso real es arrancar una vez y capturar muchas con la app ya en la bandeja.
+
+**Lo que no resuelve.** El `.exe` **no está firmado**: al abrirlo descargado, SmartScreen avisa
+(«Windows protegió tu PC» → «Más información» → «Ejecutar de todas formas»). Firmar exige un
+certificado de firma de código de pago; queda fuera hasta que haya usuarios que lo justifiquen.
+
+**Alternativas descartadas.**
+- *Dependiente del runtime (~1 MB):* obliga a quien lo descarga a instalar .NET 8 Desktop
+  antes; justo lo que se quiere evitar.
+- *Instalador Inno Setup / WiX / MSIX:* ver arriba. MSIX además exige firma para instalarse.
+- *Subir el `.exe` al repositorio:* 63 MB por versión en el historial de git, para siempre.
+
+**Reversibilidad.** Total. Un instalador puede envolver este mismo `.exe` más adelante sin
+tocar el código de la app.

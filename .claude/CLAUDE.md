@@ -26,6 +26,7 @@ copiar/guardar en local. Sin nube, sin cuentas, sin backend. El SRS completo est
 | Preferencias | `src\CapturaLocal\Settings\` |
 | Portapapeles, guardado, log | `src\CapturaLocal\Services\` |
 | Pruebas | `tests\CapturaLocal.Tests\` |
+| Publicación del `.exe` | `src\CapturaLocal\Properties\PublishProfiles\Portable.pubxml`, `.github\workflows\release.yml` |
 | Preferencias del usuario en runtime | `%LOCALAPPDATA%\CapturaLocal\settings.json` |
 
 ## Comandos
@@ -88,6 +89,10 @@ no hacer nada, mira el área de notificaciones.
   (línea, círculo, rectángulo) en un solo botón con menú desplegable, y texto con cuadro
   definido por arrastre (si es muy estrecho, crece a lo ancho). SDK 8.0.427 instalado con winget
   el 2026-11-05; `dotnet test` 38/38. Falta el recorrido manual de `nueva-herramienta`.
+- **Distribución (ADR-007):** `.exe` portable autocontenido con
+  `dotnet publish src\CapturaLocal\CapturaLocal.csproj -p:PublishProfile=Portable` →
+  `artifacts\portable\`. Al subir una etiqueta `v*`, `.github\workflows\release.yml` lo publica
+  en GitHub Releases. Sin firmar (SmartScreen avisa). El flujo aún no se ha ejecutado en GitHub.
 - **Hueco en el SRS:** la tabla §6 empieza en RF-02; no existe RF-01. Falta el requisito de
   "invocar la captura mediante atajo global", o hay un error de numeración. Pendiente de aclarar
   con el autor del documento.

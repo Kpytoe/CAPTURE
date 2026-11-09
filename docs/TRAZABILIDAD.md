@@ -48,6 +48,12 @@ Estado: ✅ hecho y verificado · 🚧 parcial en el borrador 1 · ⬜ borrador 
 | Guardado local | ✅ | `probar-editor.ps1`: el PNG aparece en la carpeta configurada con las marcas incrustadas, y el editor informa de la ruta |
 | Privacidad | ✅ | El `git grep` de RNF-03 devuelve vacío. Pendiente de comprobación con analizador de tráfico en una sesión real |
 
+## Entregables (SRS §13)
+
+| Entregable | Estado | Implementado en | Verificación |
+|---|---|---|---|
+| Aplicación instalable para Windows, ejecutable local, con icono de bandeja | 🚧 | `src\CapturaLocal\Properties\PublishProfiles\Portable.pubxml`, `.github\workflows\release.yml` (ADR-007) | `dotnet publish ... -p:PublishProfile=Portable -p:Version=0.0.1` → un `CapturaLocal.exe` de 63 MB, versión 0.0.1.0. Copiado fuera del repo: arranca, registra `Ctrl+Shift+2` (otro proceso recibe 1409), no carga ningún módulo de `Program Files\dotnet`, y `--capturar` + Esc abre y cancela el overlay. Lógica de los pasos de privacidad y SHA-256 del flujo probada en local. **Pendiente:** primera ejecución real del flujo en GitHub (requiere subir una etiqueta) y probarlo en un equipo sin .NET. Es portable, no instalador: sin acceso en el menú Inicio ni entrada en «Desinstalar» |
+
 ## Resumen del borrador 1
 
 **11 de 14 requisitos funcionales completos**, 3 parciales por alcance decidido (modos de
