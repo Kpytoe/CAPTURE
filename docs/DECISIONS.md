@@ -218,3 +218,37 @@ certificado de firma de código de pago; queda fuera hasta que haya usuarios que
 
 **Reversibilidad.** Total. Un instalador puede envolver este mismo `.exe` más adelante sin
 tocar el código de la app.
+
+## ADR-008 — Render por software en todo el proceso
+
+**Fecha:** 2026-11-09
+
+**Contexto.** En reposo en la bandeja, tras haber hecho capturas, la app ocupaba 176–185 MB de
+memoria privada. No era una fuga: el heap gestionado quedaba en 2–5 MB. El grueso era el
+pipeline de render por hardware de WPF: el dispositivo Direct3D se crea al arrancar (74 MB
+frente a 36 MB) y la primera ventana a pantalla completa añade ~50 MB nativos que no se
+devuelven mientras viva el proceso.
+
+**Decisión.** `RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly` en `App.OnStartup`.
+Además, al cerrarse la última ventana se fuerza una recolección (`ReleaseMemoryWhenIdle`),
+porque en la bandeja nada dispara el GC y los bitmaps nativos esperaban al finalizador.
+
+**Medido** (Debug, 1920×1200 al 125 %, sesión remota; memoria privada):
+
+| Momento | Hardware | Software |
+|---|---|---|
+| Recién arrancada | 74 MB, 27 hilos | 36 MB, 10 hilos |
+| Tras overlay cancelado | 139 MB | 63 MB |
+| Captura + editor cerrado | 146–165 MB | 56 MB |
+
+**Lo que no está verificado.** La fluidez del editor (lápiz, zoom, pixelado) con capturas
+grandes o en 4K, y el tiempo del overlay (RNF-01) fuera de una sesión remota: solo hay una
+muestra en software (358 ms el primero, 77 ms en caliente).
+
+**Alternativas descartadas.**
+- *Software solo en la ventana oculta del atajo:* arranca en 36 MB, pero la primera captura
+  paga la creación del dispositivo (780 ms) y vuelve a 130–140 MB.
+- *Overlay y editor en un proceso hijo de vida corta:* un rediseño para un problema que una
+  línea resuelve.
+
+**Reversibilidad.** Total: es una línea. Si el editor va a tirones en pantallas grandes, se quita.

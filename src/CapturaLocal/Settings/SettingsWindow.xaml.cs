@@ -193,7 +193,9 @@ public partial class SettingsWindow : Window
         Services.FileLogger.Enabled = _settings.LoggingEnabled;
 
         _store.Save(_settings);
-        DialogResult = true;
+
+        // Sin DialogResult: la ventana se abre con Show(), no con ShowDialog(), y asignarlo en
+        // una ventana no modal lanza InvalidOperationException (la app moria al pulsar Guardar).
         Close();
     }
 

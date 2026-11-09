@@ -74,31 +74,38 @@ public sealed class SaveService
         }
         catch (UnauthorizedAccessException ex)
         {
-            FileLogger.Error("Sin permisos para guardar en la carpeta indicada.", ex);
+            FileLogger.Error($"Sin permisos para guardar en la carpeta indicada. {Describe(ex)}");
             return new SaveResult(SaveOutcome.Failed, path,
                 "No tienes permisos para escribir en esa carpeta. Elige otra ubicación; " +
                 "la captura sigue abierta y no se ha perdido nada.");
         }
         catch (DirectoryNotFoundException ex)
         {
-            FileLogger.Error("La carpeta de guardado no existe.", ex);
+            FileLogger.Error($"La carpeta de guardado no existe. {Describe(ex)}");
             return new SaveResult(SaveOutcome.Failed, path,
                 "La carpeta de guardado ya no existe. Elige otra ubicación; " +
                 "la captura sigue abierta y no se ha perdido nada.");
         }
         catch (IOException ex)
         {
-            FileLogger.Error("Error de entrada/salida al guardar.", ex);
+            FileLogger.Error($"Error de entrada/salida al guardar. {Describe(ex)}");
             return new SaveResult(SaveOutcome.Failed, path,
                 $"No se pudo escribir el archivo: {ex.Message}\n\n" +
                 "La captura sigue abierta y no se ha perdido nada.");
         }
         catch (Exception ex)
         {
-            FileLogger.Error("Fallo inesperado al guardar.", ex);
+            FileLogger.Error($"Fallo inesperado al guardar. {Describe(ex)}");
             return new SaveResult(SaveOutcome.Failed, path,
                 $"No se pudo guardar: {ex.Message}\n\n" +
                 "La captura sigue abierta y no se ha perdido nada.");
         }
     }
+
+    /// <summary>
+    /// Lo que se anota de un fallo al guardar: tipo y codigo, nunca <c>ex.Message</c>. Los
+    /// mensajes de E/S de .NET llevan la ruta completa («Access to the path 'C:\...\Captura_....png'
+    /// is denied»), y el log no puede contener el nombre de archivo de una captura.
+    /// </summary>
+    private static string Describe(Exception ex) => $"{ex.GetType().Name}, HResult 0x{ex.HResult:X8}";
 }

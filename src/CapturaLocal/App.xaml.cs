@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using System.Windows.Threading;
 using CapturaLocal.Interop;
 using CapturaLocal.Services;
 using CapturaLocal.Settings;
@@ -24,6 +25,12 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Render por software (ADR-008): el dispositivo Direct3D de WPF cuesta ~40 MB al arrancar
+        // y ~50 MB mas tras la primera ventana a pantalla completa, que no se devuelven nunca.
+        // Una app que vive en la bandeja no los amortiza.
+        System.Windows.Media.RenderOptions.ProcessRenderMode =
+            System.Windows.Interop.RenderMode.SoftwareOnly;
 
         // Dos instancias competirian por el mismo atajo global y la segunda fallaria con un
         // mensaje incomprensible ("atajo ya en uso" ... por ella misma).
@@ -118,9 +125,14 @@ public partial class App : Application
         try
         {
             var image = await Capture.CaptureService.CaptureRegionAsync();
-            if (image is null) return;
+            if (image is null)
+            {
+                ReleaseMemoryWhenIdle();
+                return;
+            }
 
             var editor = new Editor.EditorWindow(image, _settings);
+            editor.Closed += (_, _) => ReleaseMemoryWhenIdle();
             editor.Show();
             editor.Activate();
         }
@@ -129,7 +141,33 @@ public partial class App : Application
             FileLogger.Error("No se pudo completar la captura.", ex);
             MessageBox.Show($"No se pudo completar la captura.\n\n{ex.Message}",
                 "Captura Local", MessageBoxButton.OK, MessageBoxImage.Error);
+            ReleaseMemoryWhenIdle();
         }
+    }
+
+    /// <summary>
+    /// Devuelve al sistema la memoria de la captura cuando ya no queda ninguna ventana abierta.
+    ///
+    /// Tras cerrar el overlay o el editor no queda ninguna referencia viva a las imagenes, pero
+    /// la app en la bandeja no asigna nada, asi que el recolector no vuelve a pasar por si solo:
+    /// las copias del escritorio (unos 4 bytes por pixel cada una, casi todo memoria nativa que
+    /// solo se suelta al finalizar los objetos) se quedaban en el proceso hasta la siguiente
+    /// captura. Aqui se fuerza esa pasada, en reposo y con el hilo de interfaz libre.
+    /// </summary>
+    private void ReleaseMemoryWhenIdle()
+    {
+        Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, () =>
+        {
+            // Con un editor todavia abierto no merece la pena la pausa: se hara al cerrarlo.
+            if (Windows.Count > 0) return;
+
+            // El monton administrado es pequeno (2-5 MB medidos); lo que pesa son los mapas de
+            // bits nativos que cuelgan de objetos ya inalcanzables, y esos solo se liberan
+            // cuando corren sus finalizadores.
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        });
     }
 
     private void OnOpenSettings()
@@ -149,6 +187,8 @@ public partial class App : Application
             {
                 _tray.Text = $"Captura Local - {_hotKeys.Current.ToDisplayString()}";
             }
+
+            ReleaseMemoryWhenIdle();
         };
         _settingsWindow.Show();
     }

@@ -37,6 +37,43 @@ public class NombreDeArchivoTests
 }
 
 /// <summary>
+/// El log no puede contener el nombre de archivo de una captura. Los mensajes de las excepciones
+/// de E/S de .NET llevan la ruta completa, asi que un guardado fallido no debe volcarlos.
+/// </summary>
+public class RegistroDeFallosAlGuardarTests
+{
+    [Fact]
+    public void UnGuardadoFallidoNoDejaElNombreDelArchivoEnElLog()
+    {
+        var carpeta = Path.Combine(Path.GetTempPath(), "CapturaLocal.Tests-" + Guid.NewGuid().ToString("N"));
+        var marca = Guid.NewGuid().ToString("N");
+        var ruta = Path.Combine(carpeta, $"Captura_{marca}.png");
+
+        // Una carpeta donde deberia ir el temporal: File.Create falla con
+        // «Access to the path '...\Captura_<marca>.png.tmp' is denied».
+        Directory.CreateDirectory(ruta + ".tmp");
+
+        try
+        {
+            var imagen = System.Windows.Media.Imaging.BitmapSource.Create(
+                1, 1, 96, 96, System.Windows.Media.PixelFormats.Bgra32, null, new byte[4], 4);
+
+            var resultado = new SaveService().Save(imagen, ruta, _ => true);
+
+            Assert.Equal(SaveOutcome.Failed, resultado.Outcome);
+
+            // FileLogger no admite redirigir su ruta: se lee el log real del equipo.
+            var log = File.Exists(FileLogger.FilePath) ? File.ReadAllText(FileLogger.FilePath) : string.Empty;
+            Assert.DoesNotContain(marca, log);
+        }
+        finally
+        {
+            Directory.Delete(carpeta, recursive: true);
+        }
+    }
+}
+
+/// <summary>
 /// La promesa del producto es que nada sale del equipo. La carpeta de guardado por defecto es
 /// donde esa promesa se rompe mas facil, porque el valor «natural» de Windows (Imagenes) suele
 /// estar redirigido a OneDrive. Ver ADR-003.

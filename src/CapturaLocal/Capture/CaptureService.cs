@@ -26,6 +26,7 @@ public static class CaptureService
 
         var stopwatch = Stopwatch.StartNew();
         Drawing::Bitmap? desktop = null;
+        var overlays = new List<OverlayWindow>();
 
         try
         {
@@ -36,7 +37,6 @@ public static class CaptureService
             session.Finished += region => completion.TrySetResult(region);
 
             var cursor = CursorMonitor();
-            var overlays = new List<OverlayWindow>();
             OverlayWindow? underCursor = null;
 
             foreach (var monitor in MonitorInfo.All)
@@ -74,7 +74,7 @@ public static class CaptureService
 
             var selection = await completion.Task;
 
-            foreach (var overlay in overlays) overlay.Close();
+            CloseOverlays(overlays);
 
             if (selection is null)
             {
@@ -96,9 +96,18 @@ public static class CaptureService
         }
         finally
         {
+            // Tambien si algo fallo a medias: un overlay que se queda abierto tapa la pantalla
+            // con la imagen congelada y retiene su copia del escritorio para siempre.
+            CloseOverlays(overlays);
             desktop?.Dispose();
             _inProgress = false;
         }
+    }
+
+    private static void CloseOverlays(List<OverlayWindow> overlays)
+    {
+        foreach (var overlay in overlays) overlay.Close();
+        overlays.Clear();
     }
 
     private static MonitorInfo? CursorMonitor()
