@@ -58,7 +58,9 @@ no hacer nada, mira el área de notificaciones.
 - Un cambio no está terminado sin evidencia: el comando que se corrió y su salida, o la receta
   manual exacta. "Debería funcionar" no cuenta.
 - Cero sobre-ingeniería: nada de capas ni abstracciones para problemas que aún no existen.
-- Si se crea una carpeta nueva, se actualiza el árbol del `README.md` en el mismo commit.
+- El `README.md` es **solo** la guía de descarga para quien llega desde GitHub: no lleva estado
+  del proyecto, ni árbol de carpetas, ni instrucciones de compilación (eso vive aquí y en `docs\`).
+- Los commits **no llevan** línea `Co-Authored-By` de Claude: el usuario la pidió quitar.
 
 ## Deuda conocida
 
@@ -92,7 +94,8 @@ no hacer nada, mira el área de notificaciones.
 - **Distribución (ADR-007):** `.exe` portable autocontenido con
   `dotnet publish src\CapturaLocal\CapturaLocal.csproj -p:PublishProfile=Portable` →
   `artifacts\portable\`. Al subir una etiqueta `v*`, `.github\workflows\release.yml` lo publica
-  en GitHub Releases. Sin firmar (SmartScreen avisa). El flujo aún no se ha ejecutado en GitHub.
+  en GitHub Releases. Sin firmar: SmartScreen y los navegadores avisan, por eso la descarga
+  recomendada es `CapturaLocal-win-x64.zip`. La v0.0.1 se publicó y el `.exe` descargado arranca.
 - **Hueco en el SRS:** la tabla §6 empieza en RF-02; no existe RF-01. Falta el requisito de
   "invocar la captura mediante atajo global", o hay un error de numeración. Pendiente de aclarar
   con el autor del documento.

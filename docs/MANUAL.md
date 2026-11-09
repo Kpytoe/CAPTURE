@@ -2,8 +2,8 @@
 
 ## Poner en marcha
 
-Descarga `CapturaLocal-X.Y.Z-win-x64.exe` de la página **Releases** del repositorio en GitHub.
-Es un solo archivo y no necesita instalación ni .NET: guárdalo en una carpeta tuya (por ejemplo
+Descarga `CapturaLocal-win-x64.zip` de la página **Releases** del repositorio en GitHub y
+extráelo. Dentro hay un solo `CapturaLocal.exe`, que no necesita instalación ni .NET: guárdalo en una carpeta tuya (por ejemplo
 `%LOCALAPPDATA%\Programs\CapturaLocal\`) y ábrelo. La primera vez Windows SmartScreen avisará
 porque el archivo no está firmado: **Más información → Ejecutar de todas formas**.
 

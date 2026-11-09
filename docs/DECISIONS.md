@@ -189,7 +189,10 @@ Windows, ejecutable local».
    .NET instalado.
 2. Un flujo de GitHub Actions, `.github\workflows\release.yml`, que al subir una etiqueta `vX.Y.Z`
    corre las pruebas, comprueba RNF-03 (ni código de red ni `<PackageReference>` en `src\`),
-   publica el `.exe` con esa versión y lo adjunta a una Release junto con su SHA-256.
+   publica el `.exe` con esa versión y lo adjunta a una Release, suelto y dentro de
+   `CapturaLocal-win-x64.zip`, con sus SHA-256 en `SHA256SUMS.txt`. El `.zip` es la descarga
+   recomendada: en el primer intento desde un segundo equipo el `.exe` suelto no se pudo
+   descargar, y los navegadores bloquean mucho menos un `.zip` que un ejecutable sin firmar.
 3. Los binarios **no se versionan en git**: `artifacts/` ya está en `.gitignore`.
 
 **Porqué portable y no instalador.** La app ya guarda todo en `%LOCALAPPDATA%\CapturaLocal` y
