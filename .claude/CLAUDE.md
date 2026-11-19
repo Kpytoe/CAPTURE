@@ -61,6 +61,10 @@ no hacer nada, mira el área de notificaciones.
 - El `README.md` es **solo** la guía de descarga para quien llega desde GitHub: no lleva estado
   del proyecto, ni árbol de carpetas, ni instrucciones de compilación (eso vive aquí y en `docs\`).
 - Los commits **no llevan** línea `Co-Authored-By` de Claude: el usuario la pidió quitar.
+- **Cada cambio va en su rama y entra por Pull Request** (`feat/`, `fix/`, `docs/`, `chore/`…),
+  nunca directo a `main`. El PR sigue `.github\pull_request_template.md` y el check de
+  `.github\workflows\ci.yml` (pruebas + privacidad) debe estar en verde antes del merge (squash).
+  Ramas, commits, push y merge los hace el usuario: Claude deja los cambios en el árbol de trabajo.
 
 ## Deuda conocida
 

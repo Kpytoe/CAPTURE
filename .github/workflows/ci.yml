@@ -1,0 +1,38 @@
+# Compila y prueba cada Pull Request contra main (y cada push a main).
+# El check que aparece en el PR es "CI / pruebas": si sale en rojo, no se hace merge.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Si subes otro commit a la misma rama, se cancela la ejecución anterior.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pruebas:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Compilar y probar
+        run: dotnet test tests\CapturaLocal.Tests
+
+      - name: Privacidad (RNF-03) — sin código de red ni paquetes en src
+        shell: pwsh
+        run: |
+          $red = git grep -nE 'HttpClient|WebClient|WebRequest|Socket|telemetr' -- src
+          $pkg = git grep -n '<PackageReference' -- src
+          if ($red -or $pkg) { $red; $pkg; throw "src\ tiene código de red o dependencias" }
+          exit 0   # git grep sin coincidencias sale con 1; aquí eso es el caso bueno
