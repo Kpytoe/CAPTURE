@@ -95,11 +95,13 @@ no hacer nada, mira el área de notificaciones.
   (línea, círculo, rectángulo) en un solo botón con menú desplegable, y texto con cuadro
   definido por arrastre (si es muy estrecho, crece a lo ancho). SDK 8.0.427 instalado con winget
   el 2026-11-05; `dotnet test` 38/38. Falta el recorrido manual de `nueva-herramienta`.
-- **Borrador 2, paso 2 compilado y con pruebas en verde, falta recorrido manual:** herramienta
-  **Pintar** (`B`, bloque opaco para tapar), en un botón con menú junto a Pixelar (`CoverPopup`,
-  mismo patrón que las figuras), y **cuentagotas** (`I`) junto a la paleta. `dotnet test`
-  43/43. El arnés de entrada sintética perdió el primer plano tras la primera tecla: el recorrido
-  hay que hacerlo con el equipo libre.
+- **Borrador 2, paso 2 terminado y verificado:** herramienta **Pintar** (`B`, bloque opaco para
+  tapar), en un botón con menú junto a Pixelar (`CoverPopup`, mismo patrón que las figuras), y
+  **cuentagotas** (`I`) junto a la paleta. `dotnet test` 43/43; recorrido manual hecho por el
+  usuario el 2026-11-19. Va en la v0.0.2.
+- **No automatizar el ratón en este equipo mientras se usa:** un arnés con entrada sintética
+  perdió dos veces el primer plano y su clic cayó en otra ventana. Para comprobar la interfaz,
+  fotografiar la ventana sin inyectar entrada y dejar el recorrido al usuario.
 - **Distribución (ADR-007):** `.exe` portable autocontenido con
   `dotnet publish src\CapturaLocal\CapturaLocal.csproj -p:PublishProfile=Portable` →
   `artifacts\portable\`. Al subir una etiqueta `v*`, `.github\workflows\release.yml` lo publica
