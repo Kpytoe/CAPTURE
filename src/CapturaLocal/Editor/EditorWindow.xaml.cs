@@ -40,6 +40,10 @@ public partial class EditorWindow : Window
 
     /// <summary>Figura que activa el boton de figuras: la ultima elegida en su menu.</summary>
     private EditorTool _shape = EditorTool.Rectangle;
+
+    /// <summary>A donde vuelve el editor cuando el cuentagotas ya tomo su color o se cancela.</summary>
+    private EditorTool _toolBeforeEyedropper = EditorTool.Pencil;
+
     private bool _forceClose;
     private string? _lastSavedPath;
 
@@ -51,10 +55,11 @@ public partial class EditorWindow : Window
         _canvas = new AnnotationCanvas(capture);
         _canvas.Changed += UpdateChrome;
         _canvas.TextRequested += BeginTextEntry;
+        _canvas.ColorPicked += OnColorPicked;
         CanvasHost.Children.Add(_canvas);
 
         BuildSwatches();
-        SelectColor(0);
+        SelectColor(Colores[0].Valor);
         SelectThickness(2);
 
         Title = $"Captura Local — {capture.PixelWidth} × {capture.PixelHeight} px";
@@ -87,11 +92,15 @@ public partial class EditorWindow : Window
         ToolSelect.IsChecked = tool == EditorTool.Select;
         ToolPencil.IsChecked = tool == EditorTool.Pencil;
         ToolText.IsChecked = tool == EditorTool.Text;
-        ToolPixelate.IsChecked = tool == EditorTool.Pixelate;
+        EyedropperButton.IsChecked = tool == EditorTool.Eyedropper;
 
         var isShape = tool is EditorTool.Rectangle or EditorTool.Ellipse or EditorTool.Line;
         if (isShape) ShowShape(tool);
         ToolShape.IsChecked = isShape;
+
+        var isCover = tool is EditorTool.Pixelate or EditorTool.Paint;
+        if (isCover) ShowCover(tool);
+        ToolCover.IsChecked = isCover;
 
         // En la herramienta de texto el grosor gobierna el tamano de letra, asi que la
         // etiqueta dice lo que de verdad hace.
@@ -157,6 +166,48 @@ public partial class EditorWindow : Window
     {
         ShapeMenuButton.IsChecked = false;
         ShapeMenuButton.IsHitTestVisible = true;
+    }
+
+    // --- Tapar (pixelar o pintar) ---
+
+    /// <summary>Mismo patron que las figuras: el boton muestra la ultima forma de tapar elegida.</summary>
+    private void ShowCover(EditorTool cover)
+    {
+        var (etiqueta, icono) = cover == EditorTool.Paint
+            ? ("Pintar", "IconoPintar")
+            : ("Pixelar", "IconoPixelar");
+
+        ToolCover.Tag = cover.ToString();
+        CoverIcon.Data = (Geometry)FindResource(icono);
+        CoverLabel.Text = etiqueta;
+        AutomationProperties.SetName(ToolCover, $"Herramienta {etiqueta.ToLowerInvariant()}");
+
+        CoverPixelate.IsChecked = cover == EditorTool.Pixelate;
+        CoverPaint.IsChecked = cover == EditorTool.Paint;
+    }
+
+    private void CoverMenu_Click(object sender, RoutedEventArgs e) => CoverPopup.IsOpen = true;
+
+    private void CoverOption_Click(object sender, RoutedEventArgs e)
+    {
+        CoverPopup.IsOpen = false;
+        SelectTool(Enum.Parse<EditorTool>((string)((ToggleButton)sender).Tag));
+    }
+
+    private void CoverPopup_Opened(object sender, EventArgs e)
+    {
+        // Igual que en el menu de figuras: el boton no debe reabrir el menu al cerrarlo.
+        CoverMenuButton.IsChecked = true;
+        CoverMenuButton.IsHitTestVisible = false;
+
+        var current = CoverPaint.IsChecked == true ? CoverPaint : CoverPixelate;
+        Dispatcher.BeginInvoke(() => current.Focus());
+    }
+
+    private void CoverPopup_Closed(object sender, EventArgs e)
+    {
+        CoverMenuButton.IsChecked = false;
+        CoverMenuButton.IsHitTestVisible = true;
     }
 
     // --- Color y grosor ---
@@ -226,18 +277,69 @@ public partial class EditorWindow : Window
     }
 
     private void Color_Click(object sender, RoutedEventArgs e) =>
-        SelectColor((int)((ToggleButton)sender).Tag);
+        SelectColor(Colores[(int)((ToggleButton)sender).Tag].Valor);
+
+    private void PickedColor_Click(object sender, RoutedEventArgs e) =>
+        SelectColor(((SolidColorBrush)PickedColorSwatch.Background).Color);
 
     private void Thickness_Click(object sender, RoutedEventArgs e) =>
         SelectThickness((int)((ToggleButton)sender).Tag);
 
-    private void SelectColor(int index)
+    private void SelectColor(Color color)
     {
-        _canvas.Color = Colores[index].Valor;
+        _canvas.Color = color;
 
         // Se asigna siempre: sin esto, volver a pulsar la muestra ya activa la desmarcaria y
         // el color quedaria seleccionado sin que se vea cual es.
-        for (var i = 0; i < _colorSwatches.Count; i++) _colorSwatches[i].IsChecked = i == index;
+        var inPalette = false;
+        for (var i = 0; i < _colorSwatches.Count; i++)
+        {
+            var match = Colores[i].Valor == color;
+            _colorSwatches[i].IsChecked = match;
+            inPalette |= match;
+        }
+
+        // Un color que no esta en la paleta solo puede venir del cuentagotas: ocupa la muestra
+        // extra, que se queda visible para poder volver a el despues de usar otro.
+        if (!inPalette)
+        {
+            var relleno = new SolidColorBrush(color);
+            relleno.Freeze();
+
+            var hex = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+            PickedColorSwatch.Background = relleno;
+            PickedColorSwatch.ToolTip = $"Color tomado de la captura ({hex})";
+            AutomationProperties.SetName(PickedColorSwatch, $"Color tomado {hex}");
+            PickedColorSwatch.Visibility = Visibility.Visible;
+        }
+
+        PickedColorSwatch.IsChecked = !inPalette;
+    }
+
+    // --- Cuentagotas ---
+
+    private void Eyedropper_Click(object sender, RoutedEventArgs e) => ToggleEyedropper();
+
+    /// <summary>
+    /// Entra o sale del cuentagotas. No es una herramienta en la que uno se quede: toma un
+    /// color y devuelve al usuario a lo que estaba haciendo, como en cualquier editor.
+    /// </summary>
+    private void ToggleEyedropper()
+    {
+        if (_canvas.Tool == EditorTool.Eyedropper)
+        {
+            SelectTool(_toolBeforeEyedropper);
+            return;
+        }
+
+        _toolBeforeEyedropper = _canvas.Tool;
+        SelectTool(EditorTool.Eyedropper);
+    }
+
+    private void OnColorPicked(Color color)
+    {
+        SelectColor(color);
+        SelectTool(_toolBeforeEyedropper);
     }
 
     private void SelectThickness(int index)
@@ -518,6 +620,14 @@ public partial class EditorWindow : Window
             return;
         }
 
+        if (CoverPopup.IsOpen && e.Key == Key.Escape)
+        {
+            CoverPopup.IsOpen = false;
+            CoverMenuButton.Focus();
+            e.Handled = true;
+            return;
+        }
+
         // Mientras se escribe texto, las letras son texto y no atajos de herramienta.
         var typing = _textEditor is not null;
 
@@ -543,6 +653,13 @@ public partial class EditorWindow : Window
             case Key.N: SelectTool(EditorTool.Line); e.Handled = true; break;
             case Key.T: SelectTool(EditorTool.Text); e.Handled = true; break;
             case Key.P: SelectTool(EditorTool.Pixelate); e.Handled = true; break;
+            case Key.B: SelectTool(EditorTool.Paint); e.Handled = true; break;
+            case Key.I: ToggleEyedropper(); e.Handled = true; break;
+
+            // Con el cuentagotas activo, Esc lo cancela en vez de cerrar el editor.
+            case Key.Escape when _canvas.Tool == EditorTool.Eyedropper:
+                SelectTool(_toolBeforeEyedropper); e.Handled = true; break;
+
             case Key.Escape: Close(); e.Handled = true; break;
         }
     }

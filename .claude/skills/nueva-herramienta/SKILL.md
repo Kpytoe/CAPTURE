@@ -80,6 +80,9 @@ lienzo de 24×24 para que encaje con las que ya están.
 en `ShowShape` (etiqueta, icono y marca) y en `ShapePopup_Opened`. El botón `ToolShape` siempre
 muestra la última figura elegida.
 
+**Si es una forma de tapar** (como pixelar o pintar), lo mismo con `CoverPopup`,
+`CoverOption_Click`, `ShowCover` y `CoverPopup_Opened`.
+
 `EditorWindow.xaml.cs`, en `SelectTool`: añade la línea que marca o desmarca tu botón —
 funcionan como grupo de opciones excluyentes y se sincronizan a mano.
 

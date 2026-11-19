@@ -14,4 +14,13 @@ public enum EditorTool
 
     Text,
     Pixelate,
+
+    /// <summary>Rectangulo de color solido para tapar.</summary>
+    Paint,
+
+    /// <summary>
+    /// Cuentagotas: el siguiente clic toma el color de la captura. No dibuja nada; el editor
+    /// vuelve a la herramienta anterior en cuanto hay color.
+    /// </summary>
+    Eyedropper,
 }

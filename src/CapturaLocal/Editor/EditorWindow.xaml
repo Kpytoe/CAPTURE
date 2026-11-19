@@ -140,16 +140,64 @@
                         </StackPanel>
                     </ToggleButton>
 
-                    <ToggleButton x:Name="ToolPixelate" Style="{StaticResource Herramienta}"
+                    <!--
+                      Tapar: igual que las figuras, un boton con la opcion vigente (pixelar o
+                      pintar) y una flecha que abre el menu. Lo actualiza ShowCover.
+                    -->
+                    <ToggleButton x:Name="ToolCover" Style="{StaticResource Herramienta}"
                                   Click="Tool_Click" Tag="Pixelate"
-                                  ToolTip="Tapar información sensible (P)"
+                                  ToolTip="Tapar información: pixelar (P) o pintar con un color (B)"
                                   AutomationProperties.Name="Herramienta pixelar">
                         <StackPanel>
-                            <Path Style="{StaticResource IconoHerramienta}"
+                            <Path x:Name="CoverIcon" Style="{StaticResource IconoHerramienta}"
                                   Data="{StaticResource IconoPixelar}" />
-                            <TextBlock Style="{StaticResource EtiquetaHerramienta}" Text="Pixelar" />
+                            <TextBlock x:Name="CoverLabel" Style="{StaticResource EtiquetaHerramienta}"
+                                       Text="Pixelar" />
                         </StackPanel>
                     </ToggleButton>
+
+                    <ToggleButton x:Name="CoverMenuButton" Style="{StaticResource Herramienta}"
+                                  Width="16" Margin="-2,0,2,0"
+                                  Click="CoverMenu_Click"
+                                  ToolTip="Elegir cómo tapar"
+                                  AutomationProperties.Name="Elegir cómo tapar">
+                        <Path Style="{StaticResource IconoHerramienta}" Width="8" Height="8"
+                              Data="{StaticResource IconoDesplegar}" />
+                    </ToggleButton>
+
+                    <Popup x:Name="CoverPopup" PlacementTarget="{Binding ElementName=ToolCover}"
+                           Placement="Bottom" VerticalOffset="4"
+                           StaysOpen="False" AllowsTransparency="True"
+                           Opened="CoverPopup_Opened" Closed="CoverPopup_Closed">
+                        <Border Background="{StaticResource PincelSuperficie}"
+                                BorderBrush="{StaticResource PincelBorde}" BorderThickness="1"
+                                CornerRadius="8" Padding="4">
+                            <StackPanel Orientation="Horizontal">
+                                <ToggleButton x:Name="CoverPixelate" Style="{StaticResource Herramienta}"
+                                              Click="CoverOption_Click" Tag="Pixelate"
+                                              ToolTip="Pixelar (P)"
+                                              AutomationProperties.Name="Pixelar">
+                                    <StackPanel>
+                                        <Path Style="{StaticResource IconoHerramienta}"
+                                              Data="{StaticResource IconoPixelar}" />
+                                        <TextBlock Style="{StaticResource EtiquetaHerramienta}"
+                                                   Text="Pixelar" />
+                                    </StackPanel>
+                                </ToggleButton>
+                                <ToggleButton x:Name="CoverPaint" Style="{StaticResource Herramienta}"
+                                              Click="CoverOption_Click" Tag="Paint"
+                                              ToolTip="Pintar con el color elegido (B). Con Mayús: cuadrado"
+                                              AutomationProperties.Name="Pintar">
+                                    <StackPanel>
+                                        <Path Style="{StaticResource IconoHerramienta}"
+                                              Data="{StaticResource IconoPintar}" />
+                                        <TextBlock Style="{StaticResource EtiquetaHerramienta}"
+                                                   Text="Pintar" />
+                                    </StackPanel>
+                                </ToggleButton>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
 
                     <Border Style="{StaticResource Divisor}" />
 
@@ -157,6 +205,21 @@
                     <TextBlock Style="{StaticResource EtiquetaBarra}" Text="Color" />
                     <StackPanel x:Name="ColorSwatches" Orientation="Horizontal"
                                 VerticalAlignment="Center" />
+
+                    <!-- Aparece al usar el cuentagotas y guarda el ultimo color tomado. -->
+                    <ToggleButton x:Name="PickedColorSwatch" Style="{StaticResource MuestraColor}"
+                                  Visibility="Collapsed" VerticalAlignment="Center"
+                                  Click="PickedColor_Click"
+                                  AutomationProperties.Name="Color tomado de la captura" />
+
+                    <ToggleButton x:Name="EyedropperButton" Style="{StaticResource MuestraGrosor}"
+                                  VerticalAlignment="Center"
+                                  Click="Eyedropper_Click"
+                                  ToolTip="Tomar un color de la captura (I). Esc cancela"
+                                  AutomationProperties.Name="Cuentagotas">
+                        <Path Style="{StaticResource IconoHerramienta}" Width="15" Height="15"
+                              Data="{StaticResource IconoCuentagotas}" />
+                    </ToggleButton>
 
                     <Border Style="{StaticResource Divisor}" />
 

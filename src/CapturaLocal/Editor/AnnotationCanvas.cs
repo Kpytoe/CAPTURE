@@ -72,6 +72,9 @@ public sealed class AnnotationCanvas : FrameworkElement
     /// </summary>
     public event Action<Rect>? TextRequested;
 
+    /// <summary>El cuentagotas tomo un color de la captura.</summary>
+    public event Action<Color>? ColorPicked;
+
     public Annotation? Selected
     {
         get => _selected;
@@ -150,6 +153,13 @@ public sealed class AnnotationCanvas : FrameworkElement
             return;
         }
 
+        // Antes de deseleccionar: tomar un color no es dibujar y no deberia perder la seleccion.
+        if (Tool == EditorTool.Eyedropper)
+        {
+            ColorPicked?.Invoke(SampleColor(_image, point));
+            return;
+        }
+
         Selected = null;
         _dragAnchor = point;
 
@@ -191,6 +201,10 @@ public sealed class AnnotationCanvas : FrameworkElement
 
             case EditorTool.Pixelate:
                 _inProgress = new PixelateAnnotation(_image) { Rect = new Rect(point, point) };
+                break;
+
+            case EditorTool.Paint:
+                _inProgress = new PaintAnnotation { Color = Color, Rect = new Rect(point, point) };
                 break;
 
             case EditorTool.Text:
@@ -253,6 +267,10 @@ public sealed class AnnotationCanvas : FrameworkElement
                 pixelate.Rect = Normalize(_dragAnchor, point);
                 break;
 
+            case PaintAnnotation paint:
+                paint.Rect = Normalize(_dragAnchor, constrained ? Square(_dragAnchor, point) : point);
+                break;
+
             default:
                 return;
         }
@@ -303,6 +321,7 @@ public sealed class AnnotationCanvas : FrameworkElement
             EllipseAnnotation ellipse => ellipse.Rect.Width < 2 || ellipse.Rect.Height < 2,
             LineAnnotation line => line.IsEmpty,
             PixelateAnnotation pixelate => pixelate.Rect.Width < 2 || pixelate.Rect.Height < 2,
+            PaintAnnotation paint => paint.Rect.Width < 2 || paint.Rect.Height < 2,
             _ => false,
         };
 
@@ -337,6 +356,27 @@ public sealed class AnnotationCanvas : FrameworkElement
         var step = Math.PI / 4;
         var angle = Math.Round(Math.Atan2(offset.Y, offset.X) / step) * step;
         return anchor + new Vector(Math.Cos(angle), Math.Sin(angle)) * offset.Length;
+    }
+
+    /// <summary>
+    /// Color del pixel de la captura bajo el punto. Lee la captura original, no lo pintado
+    /// encima: lo que se quiere calcar es el tono real de la imagen (el fondo que hay que tapar).
+    /// </summary>
+    public static Color SampleColor(BitmapSource image, Point point)
+    {
+        var x = Math.Clamp((int)Math.Floor(point.X), 0, image.PixelWidth - 1);
+        var y = Math.Clamp((int)Math.Floor(point.Y), 0, image.PixelHeight - 1);
+
+        // Bgra32 sin premultiplicar: asi los bytes son el color tal cual, sea cual sea el
+        // formato en que llego la captura.
+        BitmapSource bgra = image.Format == PixelFormats.Bgra32
+            ? image
+            : new FormatConvertedBitmap(image, PixelFormats.Bgra32, null, 0);
+
+        var pixel = new byte[4];
+        bgra.CopyPixels(new Int32Rect(x, y, 1, 1), pixel, 4, 0);
+
+        return Color.FromRgb(pixel[2], pixel[1], pixel[0]);
     }
 
     // --- Operaciones del editor ---
